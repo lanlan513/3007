@@ -352,7 +352,7 @@ export const useWorkshopStore = create<WorkshopState>((set, get) => ({
     const { selectedFrame, selectedSurface, selectedTechniques } = get();
     if (!selectedFrame || !selectedSurface) return 0;
 
-    let baseCost = selectedFrame.cost + selectedSurface.cost;
+    const baseCost = selectedFrame.cost + selectedSurface.cost;
     let multiplier = 1;
 
     Object.values(selectedTechniques).forEach((tech) => {
@@ -366,7 +366,7 @@ export const useWorkshopStore = create<WorkshopState>((set, get) => ({
     const { selectedFrame, selectedSurface, selectedTechniques, level } = get();
     if (!selectedFrame || !selectedSurface) return 0;
 
-    let materialScore = (selectedFrame.quality + selectedSurface.quality) / 2;
+    const materialScore = (selectedFrame.quality + selectedSurface.quality) / 2;
     let techniqueBonus = 0;
 
     Object.values(selectedTechniques).forEach((tech) => {
