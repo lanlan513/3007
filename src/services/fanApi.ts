@@ -1,11 +1,15 @@
-import type { Fan, Category, FanDetailResponse, ApiResponse } from '@/types/fan';
+import type { Fan, Category, FanDetailResponse, ApiResponse, FilterOptionsResponse, FanFilters } from '@/types/fan';
 
 const API_BASE = '/api/fans';
 
-export async function fetchFans(category?: string, keyword?: string): Promise<Fan[]> {
+export async function fetchFans(filters: FanFilters = {}): Promise<Fan[]> {
+  const { category, keyword, dynasty, material, usage } = filters;
   const params = new URLSearchParams();
   if (category) params.set('category', category);
   if (keyword) params.set('keyword', keyword);
+  if (dynasty) params.set('dynasty', dynasty);
+  if (material) params.set('material', material);
+  if (usage) params.set('usage', usage);
 
   const url = params.toString() ? `${API_BASE}?${params.toString()}` : API_BASE;
 
@@ -36,6 +40,17 @@ export async function fetchCategories(): Promise<Category[]> {
 
   if (!data.success || !data.data) {
     throw new Error(data.error || 'Failed to fetch categories');
+  }
+
+  return data.data;
+}
+
+export async function fetchFilterOptions(): Promise<FilterOptionsResponse> {
+  const response = await fetch(`${API_BASE}/filter-options`);
+  const data: ApiResponse<FilterOptionsResponse> = await response.json();
+
+  if (!data.success || !data.data) {
+    throw new Error(data.error || 'Failed to fetch filter options');
   }
 
   return data.data;

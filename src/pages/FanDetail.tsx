@@ -1,10 +1,29 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { fetchFanDetail } from '@/services/fanApi';
-import type { Fan } from '@/types/fan';
+import type { Fan, FilterOption } from '@/types/fan';
 import FanCard from '@/components/FanCard';
-import { ArrowLeft, Calendar, MapPin, Tag, BookOpen, Hammer, Heart } from 'lucide-react';
+import Timeline from '@/components/Timeline';
+import { ArrowLeft, Calendar, MapPin, Tag, BookOpen, Hammer, Heart, Clock, Layers, History, Sparkles } from 'lucide-react';
 import { Loader2 } from 'lucide-react';
+
+const dynastyMap: Record<string, string> = {
+  shang: '商代', zhou: '周代', han: '汉代', sanguo: '三国',
+  jin: '魏晋', tang: '唐代', song: '宋代', ming: '明代',
+  qing: '清代', minguo: '民国',
+};
+
+const materialMap: Record<string, string> = {
+  silk: '丝绸', paper: '宣纸', bamboo: '竹', jade: '玉石',
+  sandalwood: '檀香木', ivory: '象牙', kesi: '缂丝', gold: '金箔',
+  feather: '羽毛', lacquer: '漆器', embroidery: '刺绣',
+};
+
+const usageMap: Record<string, string> = {
+  cooling: '纳凉消暑', ceremony: '礼仪仪仗', art: '书画艺术', collection: '收藏鉴赏',
+  performance: '戏曲表演', dance: '舞蹈道具', gift: '馈赠佳品', wedding: '婚礼配饰',
+  military: '军事谋略', religion: '宗教祭祀',
+};
 
 export default function FanDetail() {
   const { id } = useParams<{ id: string }>();
@@ -153,15 +172,105 @@ export default function FanDetail() {
                   ))}
                 </div>
 
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-2 gap-4 mb-4">
                   <InfoCard icon={<Calendar size={18} />} label="起源年代" value={fan.dynasty} />
                   <InfoCard icon={<MapPin size={18} />} label="产地" value={fan.origin} />
                 </div>
+
+                {fan.popularDynasties && fan.popularDynasties.length > 0 && (
+                  <div className="mb-6">
+                    <div className="flex items-center gap-2 mb-3">
+                      <span className="inline-flex items-center gap-1 text-sm text-ink-500">
+                        <History size={16} />
+                        <span>流行时期</span>
+                      </span>
+                    </div>
+                    <div className="flex flex-wrap gap-2">
+                      {fan.popularDynasties.map((dy) => (
+                        <span
+                          key={dy}
+                          className="inline-flex items-center gap-1 px-3 py-1.5 bg-gradient-to-r from-vermilion-50 to-gold-50 text-vermilion-700 rounded-lg text-sm border border-vermilion-100 font-serif-sc"
+                        >
+                          <span className="w-1.5 h-1.5 bg-vermilion-500 rounded-full" />
+                          {dynastyMap[dy] || dy}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {fan.materials && fan.materials.length > 0 && (
+                  <div className="mb-6">
+                    <div className="flex items-center gap-2 mb-3">
+                      <span className="inline-flex items-center gap-1 text-sm text-ink-500">
+                        <Layers size={16} />
+                        <span>所用材质</span>
+                      </span>
+                    </div>
+                    <div className="flex flex-wrap gap-2">
+                      {fan.materials.map((mat) => (
+                        <span
+                          key={mat}
+                          className="inline-flex items-center px-3 py-1.5 bg-ink-50 text-ink-700 rounded-lg text-sm border border-paper-200"
+                        >
+                          {materialMap[mat] || mat}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {fan.usages && fan.usages.length > 0 && (
+                  <div>
+                    <div className="flex items-center gap-2 mb-3">
+                      <span className="inline-flex items-center gap-1 text-sm text-ink-500">
+                        <Sparkles size={16} />
+                        <span>主要用途</span>
+                      </span>
+                    </div>
+                    <div className="flex flex-wrap gap-2">
+                      {fan.usages.map((u) => (
+                        <span
+                          key={u}
+                          className="inline-flex items-center px-3 py-1.5 bg-gold-50 text-gold-700 rounded-lg text-sm border border-gold-100"
+                        >
+                          {usageMap[u] || u}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           </div>
         </div>
       </section>
+
+      {fan.timeline && fan.timeline.length > 0 && (
+        <section className="py-12 md:py-20 bg-gradient-to-b from-paper-50 to-paper-100">
+          <div className="container mx-auto px-6">
+            <div className="max-w-4xl mx-auto">
+              <div className="text-center mb-10 md:mb-14">
+                <div className="inline-flex items-center gap-3 mb-4">
+                  <span className="w-12 h-px bg-gold-400" />
+                  <span className="text-gold-500 font-serif-sc text-sm tracking-widest">演变脉络</span>
+                  <span className="w-12 h-px bg-gold-400" />
+                </div>
+                <h2 className="font-serif-sc text-3xl md:text-4xl font-bold text-ink-800 mb-3">
+                  扇史演变
+                </h2>
+                <p className="text-ink-500 max-w-xl mx-auto">
+                  沿着时间的轨迹，探寻这柄扇子穿越千年，见证朝代更迭与文化传承。
+                </p>
+              </div>
+
+              <div className="pl-4 md:pl-8">
+                <Timeline events={fan.timeline} />
+              </div>
+            </div>
+          </div>
+        </section>
+      )}
 
       <section className="py-12 md:py-20 bg-white">
         <div className="container mx-auto px-6">

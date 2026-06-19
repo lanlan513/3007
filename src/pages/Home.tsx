@@ -3,18 +3,36 @@ import { useFanStore } from '@/store/useFanStore';
 import Hero from '@/components/Hero';
 import CategoryFilter from '@/components/CategoryFilter';
 import FanCard from '@/components/FanCard';
-import { Loader2, Search, X, Filter } from 'lucide-react';
+import AdvancedFilter from '@/components/AdvancedFilter';
+import { Loader2, Search, X, Filter, SlidersHorizontal, ChevronDown } from 'lucide-react';
 
 export default function Home() {
-  const { fans, loading, error, loadFans, loadCategories, selectedCategory, searchKeyword, setSearchKeyword, setSelectedCategory } = useFanStore();
+  const {
+    fans,
+    loading,
+    error,
+    loadFans,
+    loadCategories,
+    loadFilterOptions,
+    selectedCategory,
+    searchKeyword,
+    selectedDynasty,
+    selectedMaterial,
+    selectedUsage,
+    setSearchKeyword,
+    setSelectedCategory,
+    resetFilters,
+  } = useFanStore();
   const [localSearch, setLocalSearch] = useState(searchKeyword);
   const [filterSticky, setFilterSticky] = useState(false);
+  const [advancedFilterOpen, setAdvancedFilterOpen] = useState(false);
   const fansSectionRef = useRef<HTMLElement>(null);
   const filterContainerRef = useRef<HTMLDivElement>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     loadCategories();
+    loadFilterOptions();
     loadFans();
   }, []);
 
@@ -62,25 +80,62 @@ export default function Home() {
     scrollToResults();
   };
 
+  const getActiveFilterCount = () => {
+    let count = 0;
+    if (selectedCategory !== 'all') count++;
+    if (selectedDynasty) count++;
+    if (selectedMaterial) count++;
+    if (selectedUsage) count++;
+    if (searchKeyword) count++;
+    return count;
+  };
+
+  const hasAnyFilter = () => {
+    return selectedCategory !== 'all' || selectedDynasty || selectedMaterial || selectedUsage || searchKeyword;
+  };
+
   const getResultSummary = () => {
     const parts: string[] = [];
-    
+
     if (searchKeyword) {
       parts.push(`"${searchKeyword}"`);
     }
-    
-    const categoryLabel = selectedCategory === 'all' ? '全部' : 
+
+    const categoryLabel = selectedCategory === 'all' ? '' :
       selectedCategory === 'round' ? '团扇' :
       selectedCategory === 'folding' ? '折扇' : '羽扇';
-    
-    if (selectedCategory !== 'all' || searchKeyword) {
-      parts.push(categoryLabel);
+
+    if (categoryLabel) parts.push(categoryLabel);
+
+    if (selectedDynasty) {
+      const map: Record<string, string> = {
+        shang: '商代', zhou: '周代', han: '汉代', sanguo: '三国',
+        jin: '魏晋', tang: '唐代', song: '宋代', ming: '明代',
+        qing: '清代', minguo: '民国',
+      };
+      parts.push(map[selectedDynasty] || selectedDynasty);
     }
-    
-    const resultText = parts.length > 0 
+    if (selectedMaterial) {
+      const map: Record<string, string> = {
+        silk: '丝绸', paper: '宣纸', bamboo: '竹', jade: '玉石',
+        sandalwood: '檀香木', ivory: '象牙', kesi: '缂丝', gold: '金箔',
+        feather: '羽毛', lacquer: '漆器', embroidery: '刺绣',
+      };
+      parts.push(map[selectedMaterial] || selectedMaterial);
+    }
+    if (selectedUsage) {
+      const map: Record<string, string> = {
+        cooling: '纳凉', ceremony: '礼仪', art: '书画', collection: '收藏',
+        performance: '戏曲', dance: '舞蹈', gift: '馈赠', wedding: '婚礼',
+        military: '军事', religion: '宗教',
+      };
+      parts.push(map[selectedUsage] || selectedUsage);
+    }
+
+    const resultText = parts.length > 0
       ? `${parts.join(' · ')} · 找到 ${fans.length} 把扇子`
       : `共 ${fans.length} 把扇子`;
-    
+
     return resultText;
   };
 
@@ -144,26 +199,53 @@ export default function Home() {
             </div>
           </form>
 
-          <div className="flex items-center justify-between mb-6">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
             <div className="flex items-center gap-2 text-sm text-ink-500">
               <Filter size={16} />
               <span>{getResultSummary()}</span>
             </div>
-            
-            {(searchKeyword || selectedCategory !== 'all') && (
+
+            <div className="flex items-center gap-3">
               <button
-                onClick={() => {
-                  setSearchKeyword('');
-                  setSelectedCategory('all');
-                  setLocalSearch('');
-                }}
-                className="flex items-center gap-1 text-sm text-vermilion-500 hover:text-vermilion-600 transition-colors"
+                onClick={() => setAdvancedFilterOpen(!advancedFilterOpen)}
+                className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm transition-all duration-300 border ${
+                  advancedFilterOpen || getActiveFilterCount() > 0
+                    ? 'bg-vermilion-500 text-white border-vermilion-500 shadow-md'
+                    : 'bg-white text-ink-600 border-paper-200 hover:border-vermilion-300 hover:text-vermilion-600'
+                }`}
               >
-                <X size={14} />
-                重置筛选
+                <SlidersHorizontal size={16} />
+                <span>高级筛选</span>
+                {getActiveFilterCount() > 0 && (
+                  <span className={`px-2 py-0.5 rounded-full text-xs ${
+                    advancedFilterOpen ? 'bg-white/20 text-white' : 'bg-vermilion-100 text-vermilion-600'
+                  }`}>
+                    {getActiveFilterCount()}
+                  </span>
+                )}
+                <ChevronDown size={14} className={`transition-transform duration-300 ${advancedFilterOpen ? 'rotate-180' : ''}`} />
               </button>
-            )}
+
+              {hasAnyFilter() && (
+                <button
+                  onClick={() => {
+                    resetFilters();
+                    setLocalSearch('');
+                  }}
+                  className="flex items-center gap-1 text-sm text-vermilion-500 hover:text-vermilion-600 transition-colors px-3 py-2"
+                >
+                  <X size={14} />
+                  重置筛选
+                </button>
+              )}
+            </div>
           </div>
+
+          {advancedFilterOpen && (
+            <div className="mb-6 opacity-0 animate-fade-in-up" style={{ animationFillMode: 'forwards' }}>
+              <AdvancedFilter />
+            </div>
+          )}
         </div>
 
         <div ref={filterContainerRef} className="relative z-20">
@@ -205,8 +287,7 @@ export default function Home() {
               </p>
               <button
                 onClick={() => {
-                  setSearchKeyword('');
-                  setSelectedCategory('all');
+                  resetFilters();
                   setLocalSearch('');
                 }}
                 className="inline-flex items-center gap-2 px-5 py-2.5 bg-vermilion-500 text-white rounded-xl hover:bg-vermilion-600 transition-colors text-sm"

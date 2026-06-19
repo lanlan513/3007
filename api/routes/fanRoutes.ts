@@ -4,18 +4,25 @@ import {
   getFanById,
   getCategories,
   getRelatedFans,
+  getFilterOptions,
 } from '../services/fanService.js';
+import type { FanFilters } from '../../shared/types.js';
 
 const router = Router();
 
 router.get('/', (req: Request, res: Response): void => {
-  const { category, keyword } = req.query;
+  const { category, keyword, dynasty, material, usage } = req.query;
 
   try {
-    const fans = getAllFans(
-      category as string | undefined,
-      keyword as string | undefined
-    );
+    const filters: FanFilters = {
+      category: category as string | undefined,
+      keyword: keyword as string | undefined,
+      dynasty: dynasty as string | undefined,
+      material: material as string | undefined,
+      usage: usage as string | undefined,
+    };
+
+    const fans = getAllFans(filters);
 
     res.json({
       success: true,
@@ -41,6 +48,22 @@ router.get('/categories', (_req: Request, res: Response): void => {
     res.status(500).json({
       success: false,
       error: 'Failed to fetch categories',
+    });
+  }
+});
+
+router.get('/filter-options', (_req: Request, res: Response): void => {
+  try {
+    const options = getFilterOptions();
+
+    res.json({
+      success: true,
+      data: options,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: 'Failed to fetch filter options',
     });
   }
 });
