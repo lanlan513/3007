@@ -26,7 +26,6 @@ import {
   BookOpen,
   Gift,
   Clock,
-  User,
 } from 'lucide-react';
 
 const STATUS_INFO: Record<string, { label: string; color: string; bgColor: string }> = {
@@ -462,22 +461,40 @@ function CommissionCard({
               <span className="text-sm font-bold">+{commission.expReward} EXP</span>
             </div>
           </div>
-          <button
-            onClick={() => onSelect(commission)}
-            className="flex items-center gap-1 px-3 py-1.5 bg-vermilion-500 text-white text-sm rounded-lg hover:bg-vermilion-600 transition-colors"
-          >
-            {commission.status === 'in_progress' ? (
-              <>
-                <Wrench size={14} />
-                继续修复
-              </>
-            ) : (
-              <>
-                <Play size={14} />
-                接受委托
-              </>
-            )}
-          </button>
+          {commission.status === 'completed' ? (
+            <button
+              disabled
+              className="flex items-center gap-1 px-3 py-1.5 bg-bamboo-100 text-bamboo-600 text-sm rounded-lg cursor-not-allowed"
+            >
+              <Check size={14} />
+              已完成
+            </button>
+          ) : commission.status === 'delivered' ? (
+            <button
+              disabled
+              className="flex items-center gap-1 px-3 py-1.5 bg-vermilion-100 text-vermilion-600 text-sm rounded-lg cursor-not-allowed"
+            >
+              <Archive size={14} />
+              已交付
+            </button>
+          ) : (
+            <button
+              onClick={() => onSelect(commission)}
+              className="flex items-center gap-1 px-3 py-1.5 bg-vermilion-500 text-white text-sm rounded-lg hover:bg-vermilion-600 transition-colors"
+            >
+              {commission.status === 'in_progress' ? (
+                <>
+                  <Wrench size={14} />
+                  继续修复
+                </>
+              ) : (
+                <>
+                  <Play size={14} />
+                  接受委托
+                </>
+              )}
+            </button>
+          )}
         </div>
       </div>
     </div>
@@ -920,11 +937,12 @@ function ArchiveSection({
             <Gift size={16} className="text-bamboo-500" />
             待交付
           </h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
             {completedCommissions.map((commission, index) => (
               <ArchiveCard
                 key={commission.id}
                 commission={commission}
+                fan={commission.unlockedArchive}
                 index={index}
                 onDeliver={onDeliver}
               />
@@ -939,11 +957,12 @@ function ArchiveSection({
             <BookOpen size={16} className="text-vermilion-500" />
             已归档
           </h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
             {restoredFans.map((item, index) => (
               <ArchiveCard
                 key={item.commission.id}
                 commission={item.commission}
+                fan={item.fan}
                 index={index}
                 onDeliver={onDeliver}
                 isArchived
@@ -956,13 +975,41 @@ function ArchiveSection({
   );
 }
 
+const MATERIAL_NAMES: Record<string, string> = {
+  bamboo: '竹',
+  jade: '玉',
+  silk: '丝绢',
+  paper: '宣纸',
+  gold: '金箔',
+  kesi: '缂丝',
+  lacquer: '大漆',
+  ivory: '象牙',
+  feather: '羽毛',
+  sandalwood: '檀香木',
+  embroidery: '刺绣',
+};
+
+const USAGE_NAMES: Record<string, string> = {
+  cooling: '纳凉',
+  ceremony: '礼仪',
+  wedding: '婚嫁',
+  gift: '馈赠',
+  art: '书画',
+  collection: '收藏',
+  performance: '表演',
+  dance: '舞蹈',
+  military: '军事',
+};
+
 function ArchiveCard({
   commission,
+  fan,
   index,
   onDeliver,
   isArchived = false,
 }: {
   commission: RepairCommission;
+  fan?: import('@/types/fan').Fan;
   index: number;
   onDeliver: (commissionId: string) => void;
   isArchived?: boolean;
@@ -976,13 +1023,13 @@ function ArchiveCard({
 
   return (
     <div
-      className="bg-white rounded-2xl shadow-elegant overflow-hidden transition-all duration-300 hover:shadow-elegant-hover hover:-translate-y-1 opacity-0 animate-fade-in-up"
+      className="bg-white rounded-2xl shadow-elegant overflow-hidden transition-all duration-300 hover:shadow-elegant-hover opacity-0 animate-fade-in-up"
       style={{
         animationDelay: `${index * 0.08}s`,
         animationFillMode: 'forwards',
       }}
     >
-      <div className="relative h-40 bg-gradient-to-br from-paper-100 to-paper-200">
+      <div className="relative h-48 bg-gradient-to-br from-paper-100 to-paper-200">
         <img
           src={commission.fanImage}
           alt={commission.fanName}
@@ -997,21 +1044,114 @@ function ArchiveCard({
         </div>
       </div>
 
-      <div className="p-4">
-        <h4 className="font-serif-sc font-bold text-ink-800 mb-1">{commission.fanName}</h4>
-        <p className="text-xs text-ink-400 mb-3">
-          {commission.dynasty} · {commission.origin}
-        </p>
+      <div className="p-5">
+        <div className="flex items-start justify-between mb-2">
+          <h4 className="font-serif-sc font-bold text-lg text-ink-800">{commission.fanName}</h4>
+          <span className="text-xs text-ink-400 bg-paper-100 px-2 py-0.5 rounded-full whitespace-nowrap">
+            {commission.dynasty}
+          </span>
+        </div>
 
-        <div className="space-y-1.5 mb-4">
-          <div className="flex items-center gap-2 text-xs">
-            <User size={12} className="text-ink-400" />
-            <span className="text-ink-500">修复报酬:</span>
+        <div className="flex flex-wrap gap-1.5 mb-4">
+          {fan?.tags?.slice(0, 4).map((tag) => (
+            <span
+              key={tag}
+              className="inline-flex items-center px-2 py-0.5 bg-vermilion-50 text-vermilion-600 text-xs rounded-full"
+            >
+              {tag}
+            </span>
+          ))}
+        </div>
+
+        {fan && (
+          <div className="space-y-3 mb-4">
+            <div className="bg-paper-50 rounded-xl p-3">
+              <div className="flex items-center gap-1.5 mb-1.5">
+                <BookOpen size={13} className="text-vermilion-500" />
+                <span className="text-xs font-bold text-ink-700">历史背景</span>
+              </div>
+              <p className="text-xs text-ink-600 leading-relaxed line-clamp-3">
+                {fan.history || fan.description}
+              </p>
+            </div>
+
+            <div className="grid grid-cols-2 gap-2">
+              <div className="bg-paper-50 rounded-lg p-2.5">
+                <div className="flex items-center gap-1 mb-1">
+                  <MapPin size={11} className="text-bamboo-500" />
+                  <span className="text-xs font-medium text-ink-600">产地</span>
+                </div>
+                <p className="text-xs text-ink-500 truncate">{fan.origin}</p>
+              </div>
+              <div className="bg-paper-50 rounded-lg p-2.5">
+                <div className="flex items-center gap-1 mb-1">
+                  <Calendar size={11} className="text-gold-500" />
+                  <span className="text-xs font-medium text-ink-600">朝代</span>
+                </div>
+                <p className="text-xs text-ink-500 truncate">{fan.dynasty}</p>
+              </div>
+            </div>
+
+            <div className="bg-paper-50 rounded-xl p-3">
+              <div className="flex items-center gap-1.5 mb-1.5">
+                <Sparkles size={13} className="text-gold-500" />
+                <span className="text-xs font-bold text-ink-700">材质工艺</span>
+              </div>
+              <div className="flex flex-wrap gap-1">
+                {fan.materials?.map((m) => (
+                  <span
+                    key={m}
+                    className="inline-flex items-center px-1.5 py-0.5 bg-gold-50 text-gold-600 text-xs rounded"
+                  >
+                    {MATERIAL_NAMES[m] || m}
+                  </span>
+                ))}
+              </div>
+            </div>
+
+            {fan.material && (
+              <div className="text-xs text-ink-500 leading-relaxed bg-bamboo-50/50 rounded-lg p-2.5 border-l-2 border-bamboo-300">
+                {fan.material}
+              </div>
+            )}
+
+            <div className="bg-paper-50 rounded-xl p-3">
+              <div className="flex items-center gap-1.5 mb-1.5">
+                <Scroll size={13} className="text-bamboo-500" />
+                <span className="text-xs font-bold text-ink-700">传统用途</span>
+              </div>
+              <div className="flex flex-wrap gap-1 mb-1.5">
+                {fan.usages?.map((u) => (
+                  <span
+                    key={u}
+                    className="inline-flex items-center px-1.5 py-0.5 bg-bamboo-50 text-bamboo-600 text-xs rounded"
+                  >
+                    {USAGE_NAMES[u] || u}
+                  </span>
+                ))}
+              </div>
+              {fan.usage && (
+                <p className="text-xs text-ink-500 leading-relaxed line-clamp-2 mt-1.5 pt-1.5 border-t border-paper-100">
+                  {fan.usage}
+                </p>
+              )}
+            </div>
+          </div>
+        )}
+
+        <div className="space-y-1.5 pt-3 border-t border-paper-100">
+          <div className="flex items-center justify-between text-xs">
+            <span className="flex items-center gap-1 text-ink-500">
+              <Gift size={12} className="text-gold-500" />
+              修复报酬
+            </span>
             <span className="font-medium text-gold-600">{commission.reward} 银两</span>
           </div>
-          <div className="flex items-center gap-2 text-xs">
-            <Calendar size={12} className="text-ink-400" />
-            <span className="text-ink-500">修复时间:</span>
+          <div className="flex items-center justify-between text-xs">
+            <span className="flex items-center gap-1 text-ink-500">
+              <Calendar size={12} />
+              修复时间
+            </span>
             <span className="font-medium text-ink-600">
               {commission.completedAt ? new Date(commission.completedAt).toLocaleDateString() : '-'}
             </span>
@@ -1019,10 +1159,10 @@ function ArchiveCard({
         </div>
 
         {!isArchived && commission.status === 'completed' && (
-          <div className="flex items-center justify-between pt-3 border-t border-paper-100">
+          <div className="mt-4">
             <button
               onClick={() => onDeliver(commission.id)}
-              className="flex-1 flex items-center justify-center gap-1 px-3 py-2 bg-bamboo-500 text-white text-sm rounded-lg hover:bg-bamboo-600 transition-colors"
+              className="w-full flex items-center justify-center gap-1 px-3 py-2.5 bg-bamboo-500 text-white text-sm rounded-lg hover:bg-bamboo-600 transition-colors"
             >
               <Gift size={14} />
               交付委托
@@ -1030,10 +1170,10 @@ function ArchiveCard({
           </div>
         )}
         {isArchived && (
-          <div className="pt-3 border-t border-paper-100">
-            <div className="flex items-center justify-center gap-1 px-3 py-2 bg-paper-100 text-ink-500 text-sm rounded-lg">
+          <div className="mt-4">
+            <div className="flex items-center justify-center gap-1 px-3 py-2.5 bg-paper-100 text-ink-500 text-sm rounded-lg">
               <Archive size={14} />
-              已归档
+              档案已永久保存
             </div>
           </div>
         )}

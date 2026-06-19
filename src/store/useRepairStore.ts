@@ -124,6 +124,10 @@ export const useRepairStore = create<RepairState>((set, get) => ({
   repairTechniques: REPAIR_TECHNIQUES,
 
   selectCommission: (commission) => {
+    if (commission.status === 'completed' || commission.status === 'delivered') {
+      return;
+    }
+    
     const existingInProgress = get().commissions.find(c => c.status === 'in_progress' && c.id !== commission.id);
     if (existingInProgress) {
       set((state) => ({
