@@ -63,3 +63,40 @@ export interface ApiResponse<T> {
   data?: T;
   error?: string;
 }
+
+export type ArtCategory = 'calligraphy' | 'landscape' | 'flower-bird' | 'figure' | 'abstract' | 'other';
+
+export interface Artwork {
+  id: string;
+  title: string;
+  author: string;
+  category: ArtCategory;
+  categoryName: string;
+  image: string;
+  description: string;
+  likes: number;
+  commentCount: number;
+  createdAt: string;
+}
+
+export interface Comment {
+  id: string;
+  artworkId: string;
+  author: string;
+  content: string;
+  createdAt: string;
+}
+
+export interface CreateArtworkPayload {
+  title: string;
+  author: string;
+  category: ArtCategory;
+  image: string;
+  description: string;
+}
+
+export interface CreateCommentPayload {
+  artworkId: string;
+  author: string;
+  content: string;
+}
