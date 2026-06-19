@@ -6,9 +6,10 @@ interface SearchBarProps {
   isOpen?: boolean;
   onClose?: () => void;
   variant?: 'header' | 'hero';
+  onSearch?: () => void;
 }
 
-export default function SearchBar({ isOpen, onClose, variant = 'hero' }: SearchBarProps) {
+export default function SearchBar({ isOpen, onClose, variant = 'hero', onSearch }: SearchBarProps) {
   const { searchKeyword, setSearchKeyword } = useFanStore();
   const [localValue, setLocalValue] = useState(searchKeyword);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -22,6 +23,9 @@ export default function SearchBar({ isOpen, onClose, variant = 'hero' }: SearchB
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setSearchKeyword(localValue.trim());
+    if (onSearch) {
+      onSearch();
+    }
   };
 
   const handleClear = () => {

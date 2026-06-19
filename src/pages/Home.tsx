@@ -1,32 +1,96 @@
-import { useEffect } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useFanStore } from '@/store/useFanStore';
 import Hero from '@/components/Hero';
 import CategoryFilter from '@/components/CategoryFilter';
 import FanCard from '@/components/FanCard';
-import { Loader2 } from 'lucide-react';
+import { Loader2, Search, X, Filter } from 'lucide-react';
 
 export default function Home() {
-  const { fans, loading, error, loadFans, loadCategories, selectedCategory } = useFanStore();
+  const { fans, loading, error, loadFans, loadCategories, selectedCategory, searchKeyword, setSearchKeyword, setSelectedCategory } = useFanStore();
+  const [localSearch, setLocalSearch] = useState(searchKeyword);
+  const [filterSticky, setFilterSticky] = useState(false);
+  const fansSectionRef = useRef<HTMLElement>(null);
+  const filterContainerRef = useRef<HTMLDivElement>(null);
+  const searchInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     loadCategories();
     loadFans();
   }, []);
 
-  const scrollToSection = (category: string) => {
-    const section = document.getElementById('fans-section');
-    if (section) {
-      section.scrollIntoView({ behavior: 'smooth' });
+  useEffect(() => {
+    setLocalSearch(searchKeyword);
+  }, [searchKeyword]);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      if (filterContainerRef.current && fansSectionRef.current) {
+        const sectionTop = fansSectionRef.current.offsetTop + 100;
+        const scrollY = window.scrollY;
+        setFilterSticky(scrollY >= sectionTop);
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  const scrollToResults = () => {
+    if (fansSectionRef.current) {
+      const offsetTop = fansSectionRef.current.offsetTop - 80;
+      window.scrollTo({
+        top: offsetTop,
+        behavior: 'smooth',
+      });
     }
+  };
+
+  const handleSearchSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    setSearchKeyword(localSearch.trim());
+    scrollToResults();
+  };
+
+  const handleClearSearch = () => {
+    setLocalSearch('');
+    setSearchKeyword('');
+    searchInputRef.current?.focus();
+  };
+
+  const handleCategoryChange = (category: string) => {
+    setSelectedCategory(category);
+    scrollToResults();
+  };
+
+  const getResultSummary = () => {
+    const parts: string[] = [];
+    
+    if (searchKeyword) {
+      parts.push(`"${searchKeyword}"`);
+    }
+    
+    const categoryLabel = selectedCategory === 'all' ? '全部' : 
+      selectedCategory === 'round' ? '团扇' :
+      selectedCategory === 'folding' ? '折扇' : '羽扇';
+    
+    if (selectedCategory !== 'all' || searchKeyword) {
+      parts.push(categoryLabel);
+    }
+    
+    const resultText = parts.length > 0 
+      ? `${parts.join(' · ')} · 找到 ${fans.length} 把扇子`
+      : `共 ${fans.length} 把扇子`;
+    
+    return resultText;
   };
 
   return (
     <div className="min-h-screen bg-paper-50">
-      <Hero />
+      <Hero onSearch={scrollToResults} />
 
-      <section id="fans-section" className="py-20 md:py-28">
+      <section ref={fansSectionRef} id="fans-section" className="relative pt-16 pb-20 md:pt-20 md:pb-28">
         <div className="container mx-auto px-6">
-          <div className="text-center mb-12 md:mb-16">
+          <div className="text-center mb-8 md:mb-12">
             <div className="inline-flex items-center gap-3 mb-4">
               <span className="w-12 h-px bg-gold-400" />
               <span className="text-gold-500 font-serif-sc text-sm tracking-widest">珍品鉴赏</span>
@@ -41,13 +105,88 @@ export default function Home() {
             </p>
           </div>
 
-          <div className="mb-12">
-            <CategoryFilter />
-          </div>
+          <form onSubmit={handleSearchSubmit} className="mb-8 max-w-2xl mx-auto">
+            <div className="relative group">
+              <div className="absolute -inset-0.5 bg-gradient-to-r from-vermilion-500 to-gold-500 rounded-2xl opacity-20 group-focus-within:opacity-40 blur transition-opacity duration-500" />
 
+              <div className="relative flex items-center bg-white rounded-2xl shadow-elegant overflow-hidden transition-all duration-300 focus-within:shadow-gold-glow ring-1 ring-paper-200">
+                <div className="pl-5 text-ink-400">
+                  <Search size={20} />
+                </div>
+
+                <input
+                  ref={searchInputRef}
+                  type="text"
+                  value={localSearch}
+                  onChange={(e) => setLocalSearch(e.target.value)}
+                  placeholder="搜索扇子名称、类型、标签..."
+                  className="flex-1 px-4 py-3.5 bg-transparent text-ink-800 placeholder-ink-300 font-sans-sc text-base outline-none"
+                />
+
+                {localSearch && (
+                  <button
+                    type="button"
+                    onClick={handleClearSearch}
+                    className="p-2 mr-2 text-ink-400 hover:text-ink-600 transition-colors"
+                    aria-label="清除"
+                  >
+                    <X size={18} />
+                  </button>
+                )}
+
+                <button
+                  type="submit"
+                  className="h-full px-6 py-3.5 bg-vermilion-500 text-white font-serif-sc hover:bg-vermilion-600 active:bg-vermilion-700 transition-colors"
+                >
+                  搜索
+                </button>
+              </div>
+            </div>
+          </form>
+
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center gap-2 text-sm text-ink-500">
+              <Filter size={16} />
+              <span>{getResultSummary()}</span>
+            </div>
+            
+            {(searchKeyword || selectedCategory !== 'all') && (
+              <button
+                onClick={() => {
+                  setSearchKeyword('');
+                  setSelectedCategory('all');
+                  setLocalSearch('');
+                }}
+                className="flex items-center gap-1 text-sm text-vermilion-500 hover:text-vermilion-600 transition-colors"
+              >
+                <X size={14} />
+                重置筛选
+              </button>
+            )}
+          </div>
+        </div>
+
+        <div ref={filterContainerRef} className="relative z-20">
+          <div
+            className={`transition-all duration-300 ${
+              filterSticky
+                ? 'fixed top-16 md:top-20 left-0 right-0 bg-paper-50/95 backdrop-blur-md shadow-elegant border-b border-paper-200 py-4'
+                : 'py-2'
+            }`}
+          >
+            <div className="container mx-auto px-6">
+              <CategoryFilter onChange={handleCategoryChange} />
+            </div>
+          </div>
+        </div>
+
+        <div className="container mx-auto px-6 mt-8">
           {loading && (
             <div className="flex justify-center py-20">
-              <Loader2 className="w-10 h-10 text-vermilion-500 animate-spin" />
+              <div className="text-center">
+                <Loader2 className="w-10 h-10 text-vermilion-500 animate-spin mx-auto mb-3" />
+                <p className="text-ink-400 text-sm">加载中...</p>
+              </div>
             </div>
           )}
 
@@ -60,8 +199,20 @@ export default function Home() {
           {!loading && !error && fans.length === 0 && (
             <div className="text-center py-20">
               <div className="text-6xl mb-4">🔍</div>
-              <p className="text-ink-500 font-serif-sc text-lg">未找到相关扇子</p>
-              <p className="text-ink-400 text-sm mt-2">试试其他关键词或分类吧</p>
+              <p className="text-ink-500 font-serif-sc text-lg mb-2">未找到相关扇子</p>
+              <p className="text-ink-400 text-sm mb-6">
+                {searchKeyword ? `没有找到与 "${searchKeyword}" 相关的扇子` : '该分类暂无扇子'}
+              </p>
+              <button
+                onClick={() => {
+                  setSearchKeyword('');
+                  setSelectedCategory('all');
+                  setLocalSearch('');
+                }}
+                className="inline-flex items-center gap-2 px-5 py-2.5 bg-vermilion-500 text-white rounded-xl hover:bg-vermilion-600 transition-colors text-sm"
+              >
+                查看全部扇子
+              </button>
             </div>
           )}
 

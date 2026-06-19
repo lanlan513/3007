@@ -1,6 +1,10 @@
 import SearchBar from './SearchBar';
 
-export default function Hero() {
+interface HeroProps {
+  onSearch?: () => void;
+}
+
+export default function Hero({ onSearch }: HeroProps) {
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-paper-100">
       <div className="absolute inset-0">
@@ -48,7 +52,7 @@ export default function Hero() {
           className="opacity-0 animate-fade-in-up"
           style={{ animationDelay: '0.8s', animationFillMode: 'forwards' }}
         >
-          <SearchBar variant="hero" />
+          <SearchBar variant="hero" onSearch={onSearch} />
         </div>
 
         <div

@@ -1,14 +1,25 @@
 import { useFanStore } from '@/store/useFanStore';
 
-export default function CategoryFilter() {
+interface CategoryFilterProps {
+  onChange?: (category: string) => void;
+}
+
+export default function CategoryFilter({ onChange }: CategoryFilterProps) {
   const { categories, selectedCategory, setSelectedCategory } = useFanStore();
+
+  const handleClick = (category: string) => {
+    setSelectedCategory(category);
+    if (onChange) {
+      onChange(category);
+    }
+  };
 
   return (
     <div className="flex flex-wrap justify-center gap-3 md:gap-6">
       {categories.map((cat) => (
         <button
           key={cat.value}
-          onClick={() => setSelectedCategory(cat.value)}
+          onClick={() => handleClick(cat.value)}
           className={`relative px-5 py-2 font-serif-sc text-base transition-all duration-300 ${
             selectedCategory === cat.value
               ? 'text-vermilion-500'
