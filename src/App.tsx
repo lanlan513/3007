@@ -9,6 +9,7 @@ import WindField from '@/pages/WindField';
 import Figures from '@/pages/Figures';
 import FigureDetail from '@/pages/FigureDetail';
 import FanCultureScroll from '@/pages/FanCultureScroll';
+import FanRegistry from '@/pages/FanRegistry';
 import Navbar from '@/components/Navbar';
 import { useState, useEffect } from 'react';
 import SearchBar from '@/components/SearchBar';
@@ -73,6 +74,7 @@ export default function App() {
           <Route path="/figures" element={<Figures />} />
           <Route path="/figure/:id" element={<FigureDetail />} />
           <Route path="/scroll" element={<FanCultureScroll />} />
+          <Route path="/registry" element={<FanRegistry />} />
         </Routes>
       </div>
     </Router>

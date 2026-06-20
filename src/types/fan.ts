@@ -1,5 +1,85 @@
 export type FanCategory = 'round' | 'folding' | 'feather';
 
+export type FanRegistryRarity = 'common' | 'rare' | 'epic' | 'legendary';
+export type FanRegistryStatus = 'undiscovered' | 'discovered' | 'locked' | 'unlocked' | 'completed';
+export type FanRegistryFieldKey = 'origin' | 'craftsmanship' | 'material' | 'dynasty' | 'usage' | 'story';
+
+export interface InheritanceRecord {
+  id: string;
+  owner: string;
+  period: string;
+  event: string;
+  description: string;
+}
+
+export interface RegistryClue {
+  id: string;
+  text: string;
+  hint: string;
+  answer: string;
+  relatedEntryId: string;
+  solved: boolean;
+}
+
+export interface MissingField {
+  key: FanRegistryFieldKey;
+  label: string;
+  placeholder: string;
+  filled: boolean;
+  value: string;
+  correctValue: string;
+}
+
+export interface FanRegistryEntry {
+  id: string;
+  registryNumber: string;
+  fanId: string;
+  name: string;
+  category: FanCategory;
+  categoryName: string;
+  image: string;
+  rarity: FanRegistryRarity;
+  status: FanRegistryStatus;
+  origin: string;
+  craftsmanship: string;
+  material: string;
+  dynasty: string;
+  usage: string;
+  story: string;
+  tags: string[];
+  inheritanceRecords: InheritanceRecord[];
+  clues: RegistryClue[];
+  missingFields: MissingField[];
+  completeness: number;
+  discoveredAt?: string;
+  unlockCondition?: string;
+  sealImage?: string;
+}
+
+export interface UserRegistryState {
+  discoveredEntries: string[];
+  unlockedEntries: string[];
+  completedEntries: string[];
+  solvedClues: string[];
+  filledFields: Record<string, Record<string, string>>;
+  totalDiscovered: number;
+}
+
+export const REGISTRY_RARITY_INFO: Record<FanRegistryRarity, { label: string; color: string; bgColor: string; border: string; seal: string; glow: string }> = {
+  common: { label: '寻常', color: 'text-ink-600', bgColor: 'bg-paper-100', border: 'border-paper-300', seal: '📜', glow: '' },
+  rare: { label: '珍品', color: 'text-bamboo-600', bgColor: 'bg-bamboo-50', border: 'border-bamboo-300', seal: '🏛️', glow: 'shadow-[0_0_15px_rgba(125,155,106,0.2)]' },
+  epic: { label: '名器', color: 'text-gold-600', bgColor: 'bg-gold-50', border: 'border-gold-300', seal: '⚜️', glow: 'shadow-[0_0_20px_rgba(201,169,89,0.3)]' },
+  legendary: { label: '神品', color: 'text-vermilion-600', bgColor: 'bg-vermilion-50', border: 'border-vermilion-300', seal: '👑', glow: 'shadow-[0_0_25px_rgba(200,16,46,0.25)]' },
+};
+
+export const REGISTRY_STATUS_INFO: Record<FanRegistryStatus, { label: string; color: string; icon: string }> = {
+  undiscovered: { label: '未发现', color: 'text-ink-300', icon: '❓' },
+  discovered: { label: '已发现', color: 'text-paper-600', icon: '📖' },
+  locked: { label: '封印中', color: 'text-vermilion-500', icon: '🔒' },
+  unlocked: { label: '已解封', color: 'text-bamboo-600', icon: '🔓' },
+  completed: { label: '已完备', color: 'text-gold-600', icon: '✅' },
+};
+
 export interface TimelineEvent {
   period: string;
   year: string;

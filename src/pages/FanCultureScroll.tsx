@@ -13,7 +13,7 @@ const IMAGE_URL = (prompt: string, size: string = 'landscape_16_9') =>
 const ROUND_SUFFIX = (n: number) => n > 1 ? ` · 第${n}轮` : '';
 
 function buildRoundSections(round: number): (ScrollSection & { round: number; originalId: string })[] {
-  return scrollSections.map((s, i) => ({
+  return scrollSections.map((s) => ({
     ...s,
     round,
     originalId: s.id,
@@ -45,7 +45,7 @@ export default function FanCultureScroll() {
     setCurrentSection, unlockStory, discoverFan, unlockFigure, addDistance,
     toggleJourneyPanel, newNotification, clearNotification,
     totalDistance, records, unlockedStories, discoveredFans, unlockedFigures,
-    achievements, resetJourney,
+    achievements,
   } = useJourneyStore();
 
   const [activeStoryModal, setActiveStoryModal] = useState<ScrollStory | null>(null);
@@ -68,14 +68,6 @@ export default function FanCultureScroll() {
     requestAnimationFrame(() => {
       loadingMoreRef.current = false;
     });
-  }, []);
-
-  useEffect(() => {
-    const newSections = [];
-    for (let r = 1; r <= rounds; r++) {
-      newSections.push(...buildRoundSections(r));
-    }
-    setAllSections(newSections);
   }, []);
 
   const handleScroll = useCallback(() => {
@@ -104,10 +96,9 @@ export default function FanCultureScroll() {
     const baseSections = scrollSections;
     const sectionHeights = baseSections.map((_, i) => (i + 1) * (scrollHeight / baseSections.length));
     const rawIdx = sectionHeights.findIndex(h => scrollTop < h);
-    const currentRound = Math.floor(scrollTop / (scrollHeight / rounds)) + 1;
     const idx = rawIdx === -1 ? baseSections.length - 1 : rawIdx;
     setCurrentDynastyIndex(idx % baseSections.length);
-  }, [addDistance, scrolledOnce, rounds, appendNextRound]);
+  }, [addDistance, scrolledOnce, appendNextRound]);
 
   useEffect(() => {
     const scrollEl = scrollRef.current;
@@ -419,7 +410,7 @@ function DynastySection({
           </div>
 
           <div className="lg:col-span-5 lg:[direction:ltr] space-y-8">
-            <SectionArtwork artwork={section.artworks[0]} primaryColor={bg.primaryColor} />
+            <SectionArtwork artwork={section.artworks[0]} />
             {section.historicalFigures.length > 0 && (
               <RelatedFigures
                 figureIds={section.historicalFigures}
@@ -664,10 +655,9 @@ function StoryEvents({
 }
 
 function SectionArtwork({
-  artwork, primaryColor,
+  artwork,
 }: {
   artwork: ScrollArtwork | undefined;
-  primaryColor: string;
 }) {
   if (!artwork) return null;
   return (

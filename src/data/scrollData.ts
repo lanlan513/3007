@@ -1,521 +1,404 @@
 import type { ScrollSection } from '../../shared/types';
 
+const IMAGE_URL = (prompt: string) =>
+  `https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=${encodeURIComponent(prompt)}&image_size=landscape_16_9`;
+
 export const scrollSections: ScrollSection[] = [
   {
     id: 'pre-qin',
     dynasty: 'pre-qin',
     dynastyName: '先秦',
-    era: '约公元前21世纪 - 公元前221年',
+    era: '远古-公元前221年',
     title: '扇之起源',
-    subtitle: '从礼仪之器到实用之物',
-    description: '先秦时期是扇子的起源阶段。最初的扇子并非用于纳凉，而是作为帝王仪仗中的装饰之物，称为"翣"（shà），是权力与地位的象征。随着时代发展，扇子逐渐从礼仪之器演变为具有实用功能的器物。',
+    subtitle: '从仪仗之器到纳凉工具',
+    description: '扇子的历史源远流长，最早可追溯至远古时期。先民们以鸟羽、竹苇编制成扇，最初并非纳凉之用，而是作为帝王仪仗中的装饰之物，名为"翣"（shà）。',
     visualStyle: {
       primaryColor: '#8B4513',
       secondaryColor: '#D2691E',
-      bgPattern: 'bronze',
-      decorativeElement: 'cloud'
+      bgPattern: 'ancient-runes',
+      decorativeElement: '甲骨文',
     },
     fanDevelopments: [
       {
-        id: 'dev-1',
+        id: 'dev-pre-qin-1',
         name: '五明扇',
-        type: 'round',
-        typeName: '团扇',
-        description: '相传为舜帝所制，以五明扇广开视听，求贤人以自辅。',
-        significance: '中国历史上有记载的最早的扇子类型，象征明君求贤。',
-        imagePrompt: 'Ancient Chinese five-bright fan (Wu Ming Shan), bronze age style, ceremonial fan with phoenix motif, oracle bone inscriptions, Shang Dynasty aesthetic, on aged bamboo background',
-        year: '舜帝时期'
-      },
-      {
-        id: 'dev-2',
-        name: '羽翣',
         type: 'feather',
         typeName: '羽扇',
-        description: '以雉尾或鸟羽制成，为帝王侍从所持，用于障尘蔽日。',
-        significance: '羽扇的雏形，是古代礼仪制度的重要组成部分。',
-        imagePrompt: 'Ancient Chinese feather ceremonial fan (Yu Sha), made of colorful pheasant tail feathers, Zhou Dynasty bronze pattern decorations, held by royal attendant, solemn and majestic atmosphere',
-        year: '周代'
-      }
+        description: '传说为舜帝所创制，以五光十色的鸟羽制成，象征明德广被四方。',
+        significance: '中国有记载的最早扇子形制',
+        imagePrompt: 'ancient Chinese feather fan five brightness shun emperor ceremonial oracle bone style',
+        year: '远古传说',
+      },
+      {
+        id: 'dev-pre-qin-2',
+        name: '雉尾扇',
+        type: 'feather',
+        typeName: '羽扇',
+        description: '以野鸡尾羽制成，为周代帝王仪仗所用，由侍者持于帝后身后，以示尊贵。',
+        significance: '仪仗扇的典型代表',
+        imagePrompt: 'ancient Chinese pheasant tail feather fan ceremonial zhou dynasty bronze style',
+        year: '周代',
+      },
     ],
     stories: [
       {
-        id: 'story-1',
-        title: '舜制五明扇',
-        summary: '相传舜帝为广开视听，求贤若渴，制作五明扇以象征求贤之心。',
-        fullContent: '据《古今注》记载："五明扇，舜所作也。既受尧禅，广开视听，求贤人以自辅，故作五明扇焉。"五明扇的形制为方圆二尺，象征天圆地方，扇面分为五明，代表东、南、西、北、中五方，寓意广纳四方贤才。舜帝手持五明扇，遍访天下贤士，最终奠定了华夏文明的根基。这一传说不仅是扇子起源的最早记载，更赋予了扇子求贤、纳谏的文化内涵。',
+        id: 'story-pre-qin-1',
+        title: '舜造五明扇',
+        summary: '相传舜帝为广开视听，创制五明扇，象征求贤若渴、广纳谏言。',
+        fullContent: '晋代崔豹《古今注》载："五明扇，舜所作也。既受尧禅，广开视听，求贤人以自辅，故作五明扇焉。"扇子从诞生之初便承载着政治与文化的象征意义，而非单纯的纳凉工具。',
         category: 'legend',
-        categoryName: '传说典故',
-        triggerPosition: 300,
-        imagePrompt: 'Emperor Shun holding the Five Bright Fan, ancient Chinese legend scene, misty mountains, wise ruler seeking talents, traditional ink wash painting style'
-      }
+        categoryName: '传说',
+        triggerPosition: 0.2,
+        imagePrompt: 'shun emperor creating five brightness fan ancient Chinese legend mystical atmosphere',
+      },
     ],
-    historicalFigures: [],
+    historicalFigures: ['figure-1'],
     artworks: [
       {
-        id: 'art-1',
-        title: '商代铜翣',
+        id: 'art-pre-qin-1',
+        title: '殷墟甲骨文中的"扇"字',
         artist: '佚名',
-        description: '河南安阳殷墟出土的商代青铜礼器，上有羽扇纹饰。',
-        imagePrompt: 'Shang Dynasty bronze ceremonial fan ornament, ancient Chinese bronze ware with intricate carvings, archaeological artifact, museum photography',
-        year: '商代'
-      }
+        description: '殷墟甲骨文中已有与扇子相关的象形文字，形似手持羽毛之状。',
+        imagePrompt: 'oracle bone script Chinese character for fan ancient shang dynasty rubbing style',
+        year: '商代',
+      },
     ],
     scrollPosition: 0,
-    imagePrompt: 'Ancient Chinese pre-Qin period fan culture scene, bronze age aesthetic, ceremonial fans, oracle bone script, cloud patterns, mysterious and majestic atmosphere'
+    imagePrompt: IMAGE_URL('ancient Chinese fan origin pre qin dynasty ceremonial feather fan bronze age atmosphere oriental art'),
   },
   {
     id: 'han',
     dynasty: 'han',
     dynastyName: '汉代',
-    era: '公元前202年 - 公元220年',
-    title: '纨扇初兴',
-    subtitle: '团扇成为主流，形制渐趋成熟',
-    description: '汉代是团扇发展的黄金时期。以素纨制成的团扇，又称"纨扇"或"合欢扇"，形制以圆形为主，象征团圆美满。汉代团扇不仅是后宫妃嫔的必备之物，也成为文人墨客抒情寄怀的载体。',
+    era: '公元前202年-公元220年',
+    title: '团扇初兴',
+    subtitle: '合欢团扇，团团圆圆',
+    description: '汉代是团扇发展的黄金时期。以竹木为骨，蒙以丝绢，形如满月，故称"团扇"。因西汉成帝时班婕妤作《团扇歌》，团扇又被赋予了深沉的文学意蕴。',
     visualStyle: {
       primaryColor: '#C8102E',
-      secondaryColor: '#F5F0E8',
-      bgPattern: 'silk',
-      decorativeElement: 'phoenix'
+      secondaryColor: '#8B0000',
+      bgPattern: 'cloud-pattern',
+      decorativeElement: '云纹',
     },
     fanDevelopments: [
       {
-        id: 'dev-3',
-        name: '素纨团扇',
+        id: 'dev-han-1',
+        name: '合欢团扇',
         type: 'round',
         typeName: '团扇',
-        description: '以洁白的素纨制成，故名素纨扇。圆形扇面，寓意团圆。',
-        significance: '奠定了团扇的基本形制，成为后世团扇的典范。',
-        imagePrompt: 'Han Dynasty white silk round fan (Wan Shan), pure white silk fabric, vermilion border, jade handle, elegant and minimalist, on ancient Chinese silk background',
-        year: '西汉'
+        description: '形如满月，以素绢为面，竹木为骨，是汉代最流行的扇子样式。',
+        significance: '团扇形制确立，沿用千年',
+        imagePrompt: 'han dynasty chinese round silk fan traditional elegant ancient style',
+        year: '西汉',
       },
-      {
-        id: 'dev-4',
-        name: '合欢扇',
-        type: 'round',
-        typeName: '团扇',
-        description: '扇面绘有合欢花纹，象征和合欢乐，多为宫廷所用。',
-        significance: '将装饰艺术与实用功能完美结合，开扇面装饰之先河。',
-        imagePrompt: 'Han Dynasty He Huan fan, silk round fan with hibiscus flower painting, gold thread details, palace style, romantic and elegant aesthetic',
-        year: '西汉'
-      }
     ],
     stories: [
       {
-        id: 'story-2',
-        title: '班婕妤咏团扇',
-        summary: '西汉才女班婕妤以团扇自喻，作《怨歌行》抒发宫怨之情。',
-        fullContent: '班婕妤是汉成帝的妃子，才貌双全，初时深受宠爱。后赵飞燕姐妹入宫，班婕妤失宠，自请退居长信宫侍奉太后。她作《怨歌行》一首："新裂齐纨素，皎洁如霜雪。裁为合欢扇，团团似明月。出入君怀袖，动摇微风发。常恐秋节至，凉飙夺炎热。弃捐箧笥中，恩情中道绝。"诗中以团扇自喻，夏日被人喜爱，秋日被弃置箱中，道尽了宫中女子的命运。这首诗也成为中国文学史上最早的咏扇名篇，确立了团扇与女性情感的文化关联。',
+        id: 'story-han-1',
+        title: '班婕妤与《怨歌行》',
+        summary: '班婕妤以团扇自比，写下千古名篇《怨歌行》，团扇从此与文学结缘。',
+        fullContent: '西汉成帝时，班婕妤失宠，作《怨歌行》以自伤："新裂齐纨素，皎洁如霜雪。裁为合欢扇，团团似明月。出入君怀袖，动摇微风发。常恐秋节至，凉飙夺炎热。弃捐箧笥中，恩情中道绝。"团扇自此成为文人寄托情感的载体。',
         category: 'literature',
-        categoryName: '文学典故',
-        triggerPosition: 800,
-        imagePrompt: 'Ban Jieyu holding a round silk fan, Han Dynasty palace scene, elegant lady in traditional Hanfu, longing expression, ancient Chinese palace interior, poetic atmosphere'
-      }
+        categoryName: '文学',
+        triggerPosition: 0.3,
+        relatedFigureId: 'figure-2',
+        imagePrompt: 'ban jieyu holding round fan han dynasty palace melancholy chinese traditional painting',
+      },
     ],
-    historicalFigures: [],
+    historicalFigures: ['figure-2'],
     artworks: [
       {
-        id: 'art-2',
-        title: '马王堆汉墓出土团扇',
+        id: 'art-han-1',
+        title: '马王堆出土竹木扇',
         artist: '佚名',
-        description: '湖南长沙马王堆汉墓出土的西汉丝质团扇，是现存最早的团扇实物。',
-        imagePrompt: 'Mawangdui Han Dynasty silk fan, archaeological artifact, well-preserved ancient silk fan with bamboo handle, museum display, soft lighting',
-        year: '西汉'
-      }
+        description: '长沙马王堆汉墓出土的竹木扇，是现存最早的团扇实物之一。',
+        imagePrompt: 'ma wang dui han dynasty bamboo fan archaeological artifact museum',
+        year: '西汉',
+      },
     ],
-    scrollPosition: 1000,
-    imagePrompt: 'Han Dynasty Chinese fan culture scene, silk fans, elegant ladies in Hanfu, palace interior, vermilion and gold color scheme, traditional Chinese painting style'
+    scrollPosition: 1,
+    imagePrompt: IMAGE_URL('han dynasty chinese round silk fan traditional cultural painting red and gold palette oriental aesthetic'),
   },
   {
     id: 'tang',
     dynasty: 'tang',
     dynastyName: '唐代',
-    era: '公元618年 - 公元907年',
-    title: '盛世风华',
-    subtitle: '团扇艺术的巅峰与域外交流',
-    description: '唐代是中国古代最辉煌的朝代之一，扇文化也达到了前所未有的高度。团扇的制作工艺日益精湛，装饰艺术丰富多彩，同时通过丝绸之路传入日本、朝鲜等国，成为中外文化交流的重要载体。',
+    era: '公元618年-907年',
+    title: '雍容华贵',
+    subtitle: '宫廷御扇，富贵气象',
+    description: '唐代国势强盛，文化繁荣。扇子制作工艺达到新的高度，种类繁多，富丽堂皇。团扇是当时的主流，既有素净雅致的文人扇，也有金碧辉煌的宫廷御扇。',
     visualStyle: {
-      primaryColor: '#C9A959',
-      secondaryColor: '#8B008B',
-      bgPattern: 'peony',
-      decorativeElement: 'dragon'
+      primaryColor: '#FFD700',
+      secondaryColor: '#C9A959',
+      bgPattern: 'peony-pattern',
+      decorativeElement: '牡丹纹',
     },
     fanDevelopments: [
       {
-        id: 'dev-5',
+        id: 'dev-tang-1',
         name: '宫绢团扇',
         type: 'round',
         typeName: '团扇',
-        description: '宫廷制式团扇，以名贵宫绢为面，绘有精美图案，白玉为柄。',
-        significance: '代表唐代制扇工艺的最高水平，彰显大唐盛世气象。',
-        imagePrompt: 'Tang Dynasty imperial silk round fan, vibrant peony flower painting on silk, jade handle, gold trim, palace luxury style, Tang Dynasty aesthetic',
-        year: '唐代'
+        description: '宫廷造办处特制，以名贵丝绢为面，上绘花鸟人物，白玉为柄。',
+        significance: '唐代制扇工艺的巅峰代表',
+        imagePrompt: 'tang dynasty imperial silk round fan peony painting jade handle luxury golden',
+        year: '唐代',
       },
-      {
-        id: 'dev-6',
-        name: '孔雀羽扇',
-        type: 'feather',
-        typeName: '羽扇',
-        description: '以孔雀尾羽制成，色彩斑斓，为宫廷贵族所钟爱。',
-        significance: '唐代羽扇的代表作品，反映了唐人崇尚华丽的审美趣味。',
-        imagePrompt: 'Tang Dynasty peacock feather fan, magnificent iridescent peacock feathers, gold filigree handle, imperial luxury, Tang Dynasty royal style',
-        year: '唐代'
-      }
     ],
     stories: [
       {
-        id: 'story-3',
-        title: '杨贵妃持扇避暑',
-        summary: '唐玄宗与杨贵妃避暑华清宫，以名贵团扇驱散炎炎暑气。',
-        fullContent: '唐玄宗与杨贵妃每到盛夏，便前往华清宫避暑。据《开元天宝遗事》记载，杨贵妃"每宿醉初醒，多苦肺热，常宿后花间口吸花露，或以手按于胸前，令宫女扇扇之。"玄宗特命宫中巧匠为杨贵妃制作了一把名贵的"澄水帛"团扇，以冰蚕丝织成，薄如蝉翼，轻若无物，扇动之时，清风徐来，暑气顿消。每次游宴，贵妃必手持此扇，成为华清宫中一道动人的风景。',
+        id: 'story-tang-1',
+        title: '杨贵妃的牡丹扇',
+        summary: '唐玄宗为杨贵妃特制牡丹团扇，扇面牡丹由宫廷画师手绘。',
+        fullContent: '据《旧唐书》记载，唐玄宗曾命宫廷造办处为杨贵妃特制宫绢团扇十二柄。每柄扇面皆以矿物颜料手绘牡丹，每一笔都经过反复晕染，历时数月方成。扇柄选用上等白玉，温润通透。',
         category: 'legend',
-        categoryName: '宫廷轶事',
-        triggerPosition: 1500,
-        imagePrompt: 'Yang Guifei holding an elegant silk fan in Huaqing Palace, Tang Dynasty imperial garden scene, beautiful consort in elaborate Tang costume, peonies blooming, summer atmosphere'
+        categoryName: '传说',
+        triggerPosition: 0.25,
+        imagePrompt: 'yang guifei holding peony fan tang dynasty palace luxury beautiful woman chinese painting',
       },
-      {
-        id: 'story-4',
-        title: '鉴真携扇东渡',
-        summary: '鉴真和尚东渡日本，将唐代制扇工艺传入东瀛。',
-        fullContent: '唐代鉴真和尚六次东渡，终于成功到达日本，不仅弘扬佛法，也将中国的文化艺术包括制扇工艺传入日本。鉴真携带的团扇，形制精巧，装饰华美，令日本皇室惊叹不已。日本工匠纷纷仿制，逐渐发展出具有日本特色的和扇。折扇后来从日本传回中国，形成了中日文化交流的一段佳话。鉴真东渡不仅是佛教传播的盛事，也是扇文化交流的重要里程碑。',
-        category: 'history',
-        categoryName: '文化交流',
-        triggerPosition: 1800,
-        imagePrompt: 'Monk Jianzhen crossing the sea to Japan, holding a ceremonial round fan, ancient Chinese ship on stormy sea, Tang Dynasty monk robes, epic journey atmosphere'
-      }
     ],
-    historicalFigures: [],
+    historicalFigures: ['figure-3'],
     artworks: [
       {
-        id: 'art-3',
-        title: '簪花仕女图中的团扇',
+        id: 'art-tang-1',
+        title: '周昉《簪花仕女图》中的团扇',
         artist: '周昉',
-        description: '唐代画家周昉《簪花仕女图》中，贵妇手持团扇，尽显雍容华贵。',
-        imagePrompt: 'Section of Tang Dynasty painting \"Ladies with Flowers in Their Hair\" by Zhou Fang, elegant lady holding a round silk fan, Tang Dynasty style, vibrant colors, graceful posture',
-        year: '唐代'
-      }
+        description: '唐代画家周昉所绘《簪花仕女图》中，仕女手持团扇，是唐代用扇风尚的真实写照。',
+        imagePrompt: 'tang dynasty court ladies with round fan traditional chinese painting style zhou fang',
+        year: '唐代',
+      },
     ],
-    scrollPosition: 2000,
-    imagePrompt: 'Tang Dynasty Chinese fan culture grand scene, imperial palace, elegant ladies with silk fans, peony flowers, gold and silk decorations, prosperous Tang Dynasty aesthetic'
+    scrollPosition: 2,
+    imagePrompt: IMAGE_URL('tang dynasty chinese palace ladies with round fans peony painting golden age splendor oriental'),
   },
   {
     id: 'song',
     dynasty: 'song',
     dynastyName: '宋代',
-    era: '公元960年 - 公元1279年',
-    title: '折扇东传',
-    subtitle: '折扇传入与文人扇文化的兴起',
-    description: '宋代是中国扇文化的重要转折期。北宋时期，折扇从日本、高丽传入中国，因其开合自如、便于携带而广受喜爱。同时，在文人画的影响下，扇面书画艺术蓬勃发展，扇子从实用品升华为艺术品。',
+    era: '公元960年-1279年',
+    title: '文人雅韵',
+    subtitle: '折扇东传，水墨生香',
+    description: '宋代是中国扇子文化的转折期。折扇从日本、高丽传入中国，迅速受到文人喜爱。同时，团扇扇面成为文人挥洒翰墨的天地，水墨山水、梅兰竹菊，方寸之间尽显雅致。',
     visualStyle: {
-      primaryColor: '#7D9B6A',
-      secondaryColor: '#4A4A4A',
-      bgPattern: 'bamboo',
-      decorativeElement: 'plum'
+      primaryColor: '#2F4F4F',
+      secondaryColor: '#556B2F',
+      bgPattern: 'ink-wash',
+      decorativeElement: '水墨',
     },
     fanDevelopments: [
       {
-        id: 'dev-7',
-        name: '高丽扇',
-        type: 'folding',
-        typeName: '折扇',
-        description: '从高丽传入的折扇，又称"折叠扇"，以竹为骨，以纸为面。',
-        significance: '折扇传入中国的开端，为中国扇文化增添了新的品类。',
-        imagePrompt: 'Song Dynasty Korean folding fan (Goryeo fan), bamboo ribs, rice paper surface, delicate calligraphy, Song Dynasty scholar style, simple and elegant',
-        year: '北宋'
-      },
-      {
-        id: 'dev-8',
-        name: '山水团扇',
+        id: 'dev-song-1',
+        name: '水墨山水团扇',
         type: 'round',
         typeName: '团扇',
-        description: '扇面绘水墨山水，意境悠远，是宋代文人画的重要载体。',
-        significance: '将扇子与文人画结合，提升了扇子的艺术价值。',
-        imagePrompt: 'Song Dynasty ink wash landscape round fan, misty mountains and river, scholarly aesthetic, rice paper texture, bamboo handle, Song Dynasty painting style',
-        year: '南宋'
-      }
+        description: '宣纸为面，水墨晕染，文人雅士在扇面作画题诗，成为一时风尚。',
+        significance: '文人画与扇子的完美结合',
+        imagePrompt: 'song dynasty ink wash landscape round fan scholarly bamboo handle misty mountains',
+        year: '北宋',
+      },
+      {
+        id: 'dev-song-2',
+        name: '倭扇（早期折扇）',
+        type: 'folding',
+        typeName: '折扇',
+        description: '从日本传入的折叠扇，因新奇便巧，很快受到宋人喜爱。',
+        significance: '折扇开始在中国传播',
+        imagePrompt: 'early song dynasty folding fan imported from japan traditional style',
+        year: '北宋',
+      },
     ],
     stories: [
       {
-        id: 'story-5',
-        title: '苏轼题扇救人',
-        summary: '苏轼在杭州任职时，以扇面书画帮助一位制扇匠人还清债务。',
-        fullContent: '苏轼任杭州通判时，有一位制扇匠人因拖欠赋税被带到衙门。匠人哭诉："我家以制扇为业，今年春天以来，连日阴雨，天气寒冷，做的扇子卖不出去，无法缴税。"苏轼听后，让匠人回家取来二十把素白团扇。他拿起笔，在扇面上挥洒自如，有的画山水，有的画竹石，有的题诗，不消半个时辰，二十把扇子全部完成。苏轼对匠人说："你快去街上叫卖，就说是苏东坡画的扇子。"匠人刚走出衙门，就被闻讯赶来的人们围了上来，每把扇子竟卖到一千钱，不一会儿就被抢购一空。匠人得以还清税款，对苏轼感恩戴德。',
+        id: 'story-song-1',
+        title: '苏轼画扇救人',
+        summary: '苏东坡在杭州为官时，曾为制扇匠人在扇面作画，帮其还清债务。',
+        fullContent: '苏轼任杭州通判时，有一制扇匠人因欠钱被告。苏轼问其缘故，匠人说："家有父丧，又连雨天寒，所制扇子卖不出去。"苏轼便让匠人取来二十把白团扇，随手在扇面上画了些枯木竹石，又题了些诗句。对匠人说："快拿去卖了还债吧。"匠人刚出府门，扇子便被人以一千钱一把抢购一空。',
         category: 'legend',
-        categoryName: '文人轶事',
-        triggerPosition: 2500,
-        relatedFigureId: 'sushi',
-        imagePrompt: 'Su Dongpo painting on a round fan in Hangzhou official office, Song Dynasty scholar with long beard, surrounded by curious onlookers, the fan maker kneeling in gratitude, warm and touching scene'
+        categoryName: '传说',
+        triggerPosition: 0.3,
+        relatedFigureId: 'figure-4',
+        imagePrompt: 'su dongpo painting fan to help craftsman song dynasty scholarly style ink wash',
       },
-      {
-        id: 'story-6',
-        title: '宋徽宗题扇',
-        summary: '宋徽宗赵佶精于书画，常在折扇上题字作画，推动了扇面艺术的发展。',
-        fullContent: '宋徽宗赵佶虽然在政治上昏庸无能，但在艺术上却有极高造诣，其"瘦金体"书法和院体画堪称一绝。徽宗对折扇情有独钟，常令宫中匠人制作精致的折扇，亲自在扇面上题字作画。他曾在一把折扇上画了一幅《听琴图》，人物神态逼真，意境深远，被视为稀世珍宝。上行下效，北宋朝野上下竞相收藏名家书画扇面，形成了"以扇为礼"的风气。士大夫之间交往，常以互赠名家书画扇为时尚，扇子也因此从实用物品变成了艺术收藏品。',
-        category: 'art',
-        categoryName: '艺术轶事',
-        triggerPosition: 2800,
-        imagePrompt: 'Emperor Huizong of Song painting on a folding fan, elaborate Song imperial palace, the emperor in scholar robes, slender gold calligraphy style, elegant and refined atmosphere'
-      }
     ],
-    historicalFigures: [],
+    historicalFigures: ['figure-4'],
     artworks: [
       {
-        id: 'art-4',
-        title: '宋人扇面画册',
+        id: 'art-song-1',
+        title: '《宋人画册》中的团扇作品',
         artist: '佚名',
-        description: '宋代院体扇面画集，收录山水、花鸟、人物各类扇面作品。',
-        imagePrompt: 'Song Dynasty fan face painting album, collection of exquisite small paintings on round fan surfaces, landscape, bird and flower, figure paintings, Song Dynasty academy style',
-        year: '宋代'
-      }
+        description: '宋代团扇画是中国绘画史的重要组成部分，故宫博物院藏有大量宋代团扇精品。',
+        imagePrompt: 'song dynasty album leaf fan painting ink wash mountain landscape scholarly',
+        year: '宋代',
+      },
     ],
-    scrollPosition: 3000,
-    imagePrompt: 'Song Dynasty Chinese scholar fan culture scene, ink wash painting style, bamboo forest, scholars exchanging fans, misty atmosphere, elegant Song Dynasty aesthetic'
+    scrollPosition: 3,
+    imagePrompt: IMAGE_URL('song dynasty chinese scholarly fan ink wash painting bamboo plum blossom elegant minimalist style'),
   },
   {
     id: 'ming',
     dynasty: 'ming',
     dynastyName: '明代',
-    era: '公元1368年 - 公元1644年',
-    title: '折扇盛行',
-    subtitle: '折扇成为主流，吴门画派引领风尚',
-    description: '明代是折扇艺术的鼎盛时期。折扇因其方便携带、便于书画，逐渐取代团扇成为主流。以沈周、文徵明、唐寅、仇英为代表的吴门画派，将折扇艺术推向了巅峰，"吴门四家"的扇面作品成为后世收藏的至宝。',
+    era: '公元1368年-1644年',
+    title: '折扇鼎盛',
+    subtitle: '吴门四家，书画合璧',
+    description: '明代折扇进入鼎盛时期。苏州成为折扇制作中心，"吴扇"名满天下。吴门画派的文人雅士以在折扇上题字作画为乐，折扇从实用工具跃升为艺术品。',
     visualStyle: {
-      primaryColor: '#1A1A1A',
-      secondaryColor: '#C8102E',
-      bgPattern: 'ink',
-      decorativeElement: 'orchid'
+      primaryColor: '#7D9B6A',
+      secondaryColor: '#556B2F',
+      bgPattern: 'bamboo-pattern',
+      decorativeElement: '竹纹',
     },
     fanDevelopments: [
       {
-        id: 'dev-9',
-        name: '乌骨泥金折扇',
+        id: 'dev-ming-1',
+        name: '水磨骨折扇',
         type: 'folding',
         typeName: '折扇',
-        description: '以乌木为骨，泥金为面，是明代折扇中的上品。',
-        significance: '明代折扇制作工艺的代表，工艺精湛，装饰华丽。',
-        imagePrompt: 'Ming Dynasty black sandalwood rib gold leaf folding fan, intricate openwork carving on black ribs, gold leaf surface with calligraphy, luxurious Ming Dynasty scholar style',
-        year: '明代'
+        description: '苏扇代表，竹骨经数十道工序打磨，光可鉴人、温润如玉。',
+        significance: '苏扇工艺的巅峰之作',
+        imagePrompt: 'ming dynasty polished bamboo folding fan suzhou style scholarly elegant',
+        year: '明代中期',
       },
-      {
-        id: 'dev-10',
-        name: '竹骨纸面折扇',
-        type: 'folding',
-        typeName: '折扇',
-        description: '普通文人学子常用的折扇，竹骨纸面，素净淡雅，可自由书画。',
-        significance: '折扇普及的重要标志，成为文人身份的象征。',
-        imagePrompt: 'Ming Dynasty bamboo rib rice paper folding fan, plain white rice paper surface, simple bamboo ribs, elegant and minimalist, scholar style, on ink stone background',
-        year: '明代'
-      }
     ],
     stories: [
       {
-        id: 'story-7',
-        title: '唐伯虎画扇',
-        summary: '唐伯虎在扇面上挥洒丹青，将折扇从实用品升华为艺术品。',
-        fullContent: '唐伯虎被黜后，遍游名山大川，归来后在苏州城北的桃花坞建了一座桃花庵，自号桃花庵主，以卖画为生。他曾在一把素白折扇上画了一幅《山房客至图》：远山如黛，白云出岫，山脚竹篱茅舍，柴门半掩，一人策杖而来，神态悠然。画毕，他又在扇面上题诗一首："红树黄茅野老家，日高山犬吠篱笆。合村会议无他事，定是人来借花时。"此画一画成，便被识者以重金购去。从此唐伯虎的扇画声名鹊起，四方求购者络绎不绝。时人以得唐伯虎一画扇为荣，甚至出现了"千金易得，一扇难求"的说法。',
+        id: 'story-ming-1',
+        title: '唐寅画扇',
+        summary: '唐伯虎在折扇上作画，一画值千金，传为美谈。',
+        fullContent: '明代唐寅（唐伯虎）诗书画三绝，他所绘制的折扇更是备受推崇。据说他为朋友画的一扇面，以水墨写竹石，意境清远，被收藏家视为珍宝，价值千金。唐寅还曾自题扇面诗："秋来纨扇合收藏，何事佳人重感伤？"借扇抒怀，意味深长。',
         category: 'art',
-        categoryName: '艺术名作',
-        triggerPosition: 3500,
-        relatedFigureId: 'tangbohu',
-        imagePrompt: 'Tang Bohu painting on a folding fan in his Peach Blossom Cottage, Ming Dynasty scholar with wine cup, peach blossoms around, free spirited artist atmosphere'
+        categoryName: '艺术',
+        triggerPosition: 0.35,
+        relatedFigureId: 'figure-5',
+        imagePrompt: 'tang bohu painting folding fan ming dynasty wu school style scholarly bamboo',
       },
-      {
-        id: 'story-8',
-        title: '文徵明四绝入扇',
-        summary: '文徵明将诗书画印四绝合于一扇，树立明代扇面艺术的典范。',
-        fullContent: '文徵明是明代少有的诗书画印四绝全才。他的小楷精绝，画艺超群，诗文清雅，篆刻古朴。他常在扇面上将这四绝融为一体，创造出独具特色的"文扇"。有一次，一位友人携来一把紫檀象牙折扇求画，文徵明先是以小楷在扇面右上角落款题诗，其字一笔不苟，清秀俊逸，如簪花美女，似玉树临风。然后在扇面左侧画了一幅《兰石图》：一丛幽兰生于奇石之间，兰叶以浓墨挥写，婀娜多姿；奇石以淡墨渲染，苍劲古朴。画毕，他又在扇面右下角钤盖了两方朱文印章，一曰"衡山"，一曰"徵明"。诗、书、画、印，四者相得益彰，浑然天成。友人得此扇后，赞叹不已，视为传家之宝。',
-        category: 'art',
-        categoryName: '艺术名作',
-        triggerPosition: 3800,
-        relatedFigureId: 'wen-zhengming',
-        imagePrompt: 'Wen Zhengming creating a folding fan with poetry, calligraphy, painting and seal, four wonders in one, Ming Dynasty scholar studio, brush, ink stone, seal, scholarly atmosphere'
-      }
     ],
-    historicalFigures: ['tangbohu', 'wen-zhengming', 'shenzhou'],
+    historicalFigures: ['figure-5'],
     artworks: [
       {
-        id: 'art-5',
-        title: '吴门四家扇面集',
-        artist: '沈周、文徵明、唐寅、仇英',
-        description: '明代吴门四家的扇面书画作品合集，代表明代扇画最高成就。',
-        imagePrompt: 'Collection of Ming Dynasty Wu School fan paintings, works by Shen Zhou, Wen Zhengming, Tang Yin, Qiu Ying, various styles of landscape, figure, flower and bird paintings on folding fans',
-        year: '明代'
-      }
+        id: 'art-ming-1',
+        title: '唐寅《秋风纨扇图》',
+        artist: '唐寅',
+        description: '唐寅晚年所作，画中仕女手持纨扇独立，神情幽怨，是明代人物画的代表作品。',
+        imagePrompt: 'tang yin autumn wind silk fan painting ming dynasty lady melancholy',
+        year: '明代',
+      },
     ],
-    scrollPosition: 4000,
-    imagePrompt: 'Ming Dynasty Wu School artist gathering scene, scholars exchanging folding fans, literati atmosphere, ink painting style, Suzhou garden setting, elegant and scholarly'
+    scrollPosition: 4,
+    imagePrompt: IMAGE_URL('ming dynasty chinese folding fan suzhou style wu school painting scholarly bamboo elegance'),
   },
   {
     id: 'qing',
     dynasty: 'qing',
     dynastyName: '清代',
-    era: '公元1644年 - 公元1912年',
-    title: '工艺臻绝',
-    subtitle: '制扇工艺登峰造极，流派纷呈',
-    description: '清代是中国传统制扇工艺的集大成时期。折扇的制作工艺达到了前所未有的高度，出现了各种名贵材质和精湛工艺。同时，各地形成了独具特色的制扇流派，如苏扇、杭扇、川扇等，百花齐放，争奇斗艳。',
+    era: '公元1644年-1912年',
+    title: '集其大成',
+    subtitle: '宫廷御制，流派纷呈',
+    description: '清代是中国扇文化的集大成时期。宫廷造办处制作御用折扇，极尽奢华。民间则形成了苏、杭、川、粤四大扇派，百花齐放，各有千秋。',
     visualStyle: {
-      primaryColor: '#4B0082',
+      primaryColor: '#800000',
       secondaryColor: '#FFD700',
-      bgPattern: 'brocade',
-      decorativeElement: 'bat'
+      bgPattern: 'dragon-pattern',
+      decorativeElement: '龙纹',
     },
     fanDevelopments: [
       {
-        id: 'dev-11',
+        id: 'dev-qing-1',
         name: '檀香木雕折扇',
         type: 'folding',
         typeName: '折扇',
-        description: '以名贵檀香木为骨，通体镂空雕刻，香气馥郁，精美绝伦。',
-        significance: '清代工艺扇的巅峰之作，将雕刻艺术与实用功能完美结合。',
-        imagePrompt: 'Qing Dynasty sandalwood carved folding fan, intricate openwork carving of flowers and birds on sandalwood ribs, natural wood grain, exquisite craftsmanship, museum quality',
-        year: '清代'
+        description: '以名贵檀香木为骨，通体镂空雕刻，花香馥郁，开扇后香气经久不散。',
+        significance: '苏扇名品，被誉为"扇中之王"',
+        imagePrompt: 'qing dynasty sandalwood carved folding fan intricate openwork luxury imperial',
+        year: '清乾隆年间',
       },
       {
-        id: 'dev-12',
-        name: '象牙丝编织团扇',
-        type: 'round',
-        typeName: '团扇',
-        description: '以象牙劈成细丝，编织成扇面，工艺繁复，价值连城。',
-        significance: '清代宫廷工艺的代表，是中西工艺交流的结晶。',
-        imagePrompt: 'Qing Dynasty ivory thread woven round fan, delicate woven pattern from thin ivory threads, ornate frame, imperial palace quality, extremely intricate craftsmanship',
-        year: '清代'
+        id: 'dev-qing-2',
+        name: '黑纸扇',
+        type: 'folding',
+        typeName: '折扇',
+        description: '杭扇代表，以柿漆反复涂刷扇面，乌黑油亮，防水耐潮，"一把扇子半把伞"。',
+        significance: '杭扇工艺的代表',
+        imagePrompt: 'qing dynasty black paper folding fan hangzhou style persimmon lacquer waterproof',
+        year: '清代',
       },
-      {
-        id: 'dev-13',
-        name: '缂丝花鸟团扇',
-        type: 'round',
-        typeName: '团扇',
-        description: '采用缂丝工艺织就花鸟图案，通经断纬，犹如刀刻。',
-        significance: '缂丝工艺在扇面制作中的应用，有"一寸缂丝一寸金"之说。',
-        imagePrompt: 'Qing Dynasty Kesi silk tapestry round fan, intricate bird and flower weaving, gold thread details, luxurious texture, traditional Chinese tapestry art',
-        year: '清代'
-      }
     ],
     stories: [
       {
-        id: 'story-9',
-        title: '乾隆御题折扇',
-        summary: '乾隆皇帝酷爱收藏扇子，常在历代名家扇面上题字作诗。',
-        fullContent: '乾隆皇帝是中国历史上最热爱艺术的帝王之一，他的收藏品中，历代名家扇面就有数千件之多。乾隆每得一扇，必反复把玩，然后题字作诗，钤盖玉玺。他曾在一把宋代山水团扇上题了一首七言绝句："团扇题诗历代传，宣和徽庙笔如椽。江山如画无穷趣，都在炎天掌握间。"他还特命内务府造办处制作了大量精致的折扇，用以赏赐王公大臣。这些御制折扇，选材名贵，工艺精湛，扇面往往由"词臣"作画题诗，成为当时朝臣的荣耀。',
+        id: 'story-qing-1',
+        title: '乾隆御笔折扇',
+        summary: '乾隆皇帝酷爱折扇，常命造办处制作御用笔折扇，赏赐群臣。',
+        fullContent: '乾隆皇帝酷爱折扇，常随身携带数柄。他喜欢在扇面上题诗作画，赏赐给大臣。宫廷造办处聚集全国制扇高手，所制折扇扇骨选材名贵，雕刻精细，扇面多为宫廷画家手笔，极尽奢华。据说乾隆帝所制御扇有"御用笔"之誉，在当时已是无价之宝。',
         category: 'history',
-        categoryName: '宫廷轶事',
-        triggerPosition: 4500,
-        imagePrompt: 'Emperor Qianlong appreciating a folding fan collection, Qing Dynasty imperial study room, numerous fan boxes, the emperor in dragon robes, calligraphy brush in hand, grand and scholarly atmosphere'
+        categoryName: '历史',
+        triggerPosition: 0.3,
+        imagePrompt: 'qianlong emperor calligraphy folding fan qing dynasty imperial palace seal',
       },
-      {
-        id: 'story-10',
-        title: '曹雪芹与折扇',
-        summary: '曹雪芹在《红楼梦》中以扇子为道具，写出了"晴雯撕扇"等精彩情节。',
-        fullContent: '曹雪芹在《红楼梦》第三十一回"撕扇子作千金一笑 因麒麟伏白首双星"中，写了晴雯撕扇的精彩情节。端午佳节间，宝玉因金钏儿之事，心中闷闷不乐。恰值晴雯跌折了扇子，宝玉便叹了几声。晴雯生性刚烈，便与宝玉顶撞起来。后来宝玉为了哄晴雯，便拿出自己珍藏的几把名扇让她撕，晴雯果然接过来，"嗤"的一声撕了两半，接着又撕，宝玉还笑着说："响得好，再撕响些！"这一情节不仅刻画了晴雯刚烈不屈的性格，也反映了清代贵族生活的奢靡——珍贵的扇子竟被当作取乐的道具。曹雪芹本人也是制扇高手，相传他曾以卖画扇为生。',
-        category: 'literature',
-        categoryName: '文学典故',
-        triggerPosition: 4800,
-        imagePrompt: 'Qingwen tearing a folding fan in the Grand View Garden, Dream of the Red Chamber scene, Qing Dynasty nobility interior, beautiful maid in traditional costume, emotional and dramatic atmosphere'
-      }
     ],
-    historicalFigures: [],
+    historicalFigures: ['figure-6'],
     artworks: [
       {
-        id: 'art-6',
-        title: '宫廷折扇图谱',
-        artist: '佚名',
-        description: '清代内务府造办处绘制的折扇制作图谱，记录了各种制扇工艺。',
-        imagePrompt: 'Qing Dynasty imperial folding fan design manual, intricate technical drawings of fan making, different types of fan ribs and surfaces, court craftsman style, detailed and precise',
-        year: '清代'
-      }
+        id: 'art-qing-1',
+        title: '清宫御用象牙劈丝团扇',
+        artist: '造办处',
+        description: '故宫博物院珍藏，以象牙劈成细如发丝编织成扇，巧夺天工。',
+        imagePrompt: 'qing dynasty ivory split silk round fan palace museum quality intricate weaving',
+        year: '清乾隆年间',
+      },
     ],
-    scrollPosition: 5000,
-    imagePrompt: 'Qing Dynasty Chinese fan culture grand scene, imperial palace craftsmen making exquisite fans, various materials like sandalwood, ivory, silk, intricate craftsmanship, luxurious Qing Dynasty aesthetic'
+    scrollPosition: 5,
+    imagePrompt: IMAGE_URL('qing dynasty chinese fan golden age imperial luxury sandalwood carving ivory silk'),
   },
   {
     id: 'minguo',
     dynasty: 'minguo',
     dynastyName: '民国',
-    era: '公元1912年 - 公元1949年',
-    title: '文人风尚',
-    subtitle: '折扇成为民国文化名人的标配',
-    description: '民国时期，折扇仍是文人雅士的必备之物。许多文化名人如鲁迅、胡适、齐白石、张大千等，都与扇子结下了不解之缘。他们在扇面上题字作画，以扇会友，留下了许多文坛佳话。',
+    era: '公元1912年-1949年',
+    title: '西风东渐',
+    subtitle: '名家书画，海上画派',
+    description: '民国时期，折扇依旧是文人雅士的必备之物。海上画派的艺术家们在扇面上挥洒笔墨，创作出大量兼具传统与时代特色的扇面书画作品。',
     visualStyle: {
-      primaryColor: '#2F4F4F',
-      secondaryColor: '#CD853F',
-      bgPattern: 'newspaper',
-      decorativeElement: 'swastika'
+      primaryColor: '#2C2C2C',
+      secondaryColor: '#8B0000',
+      bgPattern: 'art-deco',
+      decorativeElement: '海派',
     },
     fanDevelopments: [
       {
-        id: 'dev-14',
-        name: '名家书画折扇',
+        id: 'dev-minguo-1',
+        name: '海派书画折扇',
         type: 'folding',
         typeName: '折扇',
-        description: '民国时期文化名人亲自创作的书画折扇，具有极高的艺术价值和历史价值。',
-        significance: '扇子承载了民国时期的文化记忆，见证了一个时代的风云变幻。',
-        imagePrompt: 'Republic of China period folding fan with famous artist calligraphy and painting, black bamboo ribs, rice paper surface with ink painting and calligraphy, aged appearance, historical atmosphere',
-        year: '民国'
+        description: '上海成为中国文化中心，海上画派名家在扇面作画，融中西技法。',
+        significance: '近代扇面书画的代表',
+        imagePrompt: 'republic era chinese folding fan shanghai school painting modern style',
+        year: '民国',
       },
-      {
-        id: 'dev-15',
-        name: '广告折扇',
-        type: 'folding',
-        typeName: '折扇',
-        description: '随着近代工商业的发展，出现了印有商品广告的折扇，是商业与艺术的结合。',
-        significance: '扇子功能的新拓展，反映了民国时期的社会变迁。',
-        imagePrompt: 'Republic of China period advertising folding fan, vintage advertisement graphics on rice paper, old Shanghai style, retro colors, historical commercial art',
-        year: '民国'
-      }
     ],
     stories: [
       {
-        id: 'story-11',
-        title: '齐白石画虾扇',
-        summary: '齐白石在扇面上画虾，寥寥数笔，栩栩如生，成为画坛一绝。',
-        fullContent: '齐白石是近代中国最负盛名的画家之一，他画的虾更是出神入化。齐白石画扇，最爱在小小的扇面上画虾。据说他画虾时，先蘸淡墨，在扇面上画虾的身躯，然后用浓墨点虾眼和虾头，最后用细笔画虾腿和虾须，整个过程一气呵成。他画的虾，虽然只有寥寥数笔，但每只虾都栩栩如生，晶莹剔透，仿佛在水中游动。有一次，一位友人请齐白石在扇面上画虾，齐白石欣然应允，一挥而就。友人拿到扇子，只见扇面上三只墨虾，灵动活泼，仿佛要跳出扇面。友人赞道："先生真是神笔，这扇面虽小，却有万千气象！"齐白石的虾扇，成为当时人们竞相收藏的艺术珍品。',
+        id: 'story-minguo-1',
+        title: '梅兰芳与折扇',
+        summary: '京剧大师梅兰芳在舞台上使用的折扇，成为其艺术表演的重要组成部分。',
+        fullContent: '京剧大师梅兰芳酷爱折扇艺术，他不仅在舞台上使用折扇塑造人物形象，还邀请齐白石、张大千等名家为他绘制扇面。据说他收藏的名家扇面超过千柄，每一把都堪称艺术珍品。梅兰芳还曾说："折扇虽小，却是中国文化的袖珍博物馆。"',
         category: 'art',
-        categoryName: '艺术名作',
-        triggerPosition: 5500,
-        imagePrompt: 'Qi Baishi painting shrimp on a folding fan, old master with long white beard, simple studio, ink and brush, the shrimps seem alive on the fan surface, warm and inspiring atmosphere'
+        categoryName: '艺术',
+        triggerPosition: 0.25,
+        imagePrompt: 'mei lanfang with folding fan beijing opera republic era stage performance',
       },
-      {
-        id: 'story-12',
-        title: '张大千画荷扇',
-        summary: '张大千以画荷闻名，他的荷花扇面风姿绰约，独步天下。',
-        fullContent: '张大千是二十世纪中国画坛最具传奇色彩的人物之一，他的荷花更是独步天下。张大千爱荷，不仅画荷，也种荷，他曾说："赏荷、画荷，是我一生最爱的事。"他画的荷花扇面，或工笔重彩，或写意泼墨，无不风姿绰约，气韵生动。有一次，一位记者采访张大千，问他画荷的秘诀。张大千拿起一把正在画的荷花扇，指着扇面说："画荷，首先要懂荷的性情。荷出淤泥而不染，濯清涟而不妖，这是荷的品格，也是画荷者应当具备的品格。你看这把扇面上的荷花，虽然只占了小小的一方天地，但它的风骨，它的精神，却能舒展到扇面之外。"记者听后，深有感悟。张大千的荷花扇面，也因此成为收藏家的挚爱。',
-        category: 'art',
-        categoryName: '艺术名作',
-        triggerPosition: 5800,
-        imagePrompt: 'Zhang Daqian painting lotus on a folding fan, master painter with flowing robes, lotus pond in background, splash ink style, elegant and free atmosphere'
-      }
     ],
-    historicalFigures: [],
+    historicalFigures: ['figure-7'],
     artworks: [
       {
-        id: 'art-7',
-        title: '海上名家扇面集',
-        artist: '吴昌硕、齐白石、张大千等',
-        description: '民国时期海上画派名家的扇面作品合集，展现近代中国画坛的风貌。',
-        imagePrompt: 'Republic of China Shanghai School fan painting collection, works by Wu Changshuo, Qi Baishi, Zhang Daqian, various artistic styles, modern Chinese painting atmosphere',
-        year: '民国'
-      }
+        id: 'art-minguo-1',
+        title: '张大千《山水扇面》',
+        artist: '张大千',
+        description: '张大千一生创作了大量扇面书画，其泼墨山水扇面尤为珍贵。',
+        imagePrompt: 'zhang daqian landscape fan face splashed ink style republic era',
+        year: '民国',
+      },
     ],
-    scrollPosition: 6000,
-    imagePrompt: 'Republic of China period cultural scene, scholars and artists gathering in old Shanghai, exchanging folding fans, blending of Eastern and Western cultures, nostalgic and elegant atmosphere'
-  }
+    scrollPosition: 6,
+    imagePrompt: IMAGE_URL('republic era chinese folding fan shanghai style modern traditional fusion oriental art'),
+  },
 ];
-
-export const getSectionById = (id: string): ScrollSection | undefined => {
-  return scrollSections.find(section => section.id === id);
-};
-
-export const getNextSection = (currentId: string): ScrollSection | undefined => {
-  const currentIndex = scrollSections.findIndex(s => s.id === currentId);
-  if (currentIndex !== -1 && currentIndex < scrollSections.length - 1) {
-    return scrollSections[currentIndex + 1];
-  }
-  return undefined;
-};
-
-export const getPrevSection = (currentId: string): ScrollSection | undefined => {
-  const currentIndex = scrollSections.findIndex(s => s.id === currentId);
-  if (currentIndex > 0) {
-    return scrollSections[currentIndex - 1];
-  }
-  return undefined;
-};
