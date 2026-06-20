@@ -4,6 +4,7 @@ import FanDetail from '@/pages/FanDetail';
 import Gallery from '@/pages/Gallery';
 import Workshop from '@/pages/Workshop';
 import Restoration from '@/pages/Restoration';
+import SchoolCollection from '@/pages/SchoolCollection';
 import Navbar from '@/components/Navbar';
 import { useState } from 'react';
 import SearchBar from '@/components/SearchBar';
@@ -26,6 +27,7 @@ export default function App() {
           <Route path="/gallery" element={<Gallery />} />
           <Route path="/workshop" element={<Workshop />} />
           <Route path="/restoration" element={<Restoration />} />
+          <Route path="/schools" element={<SchoolCollection />} />
         </Routes>
       </div>
     </Router>

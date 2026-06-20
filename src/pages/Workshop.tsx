@@ -1,7 +1,8 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useWorkshopStore } from '@/store/useWorkshopStore';
-import { APPRENTICE_LEVELS } from '@/types/fan';
-import type { FanMaterial, CraftTechnique, CraftedFan, CraftStep } from '@/types/fan';
+import { useSchoolStore } from '@/store/useSchoolStore';
+import { APPRENTICE_LEVELS, SCHOOLS, FRAGMENT_RARITY_INFO } from '@/types/fan';
+import type { FanMaterial, CraftTechnique, CraftedFan, CraftStep, SchoolId } from '@/types/fan';
 import {
   Coins,
   Star,
@@ -23,6 +24,7 @@ import {
   Crown,
   Medal,
   Trash2,
+  Gift,
 } from 'lucide-react';
 
 const CRAFT_STEPS: { key: CraftStep; name: string; icon: React.ReactNode }[] = [
@@ -70,14 +72,61 @@ export default function Workshop() {
   } = useWorkshopStore();
 
   const [activeTab, setActiveTab] = useState<'craft' | 'collection'>('craft');
+  const [craftingRewardSchool, setCraftingRewardSchool] = useState<SchoolId | null>(null);
   const levelInfo = APPRENTICE_LEVELS[level];
   const totalCost = getTotalCost();
   const estimatedScore = getEstimatedScore();
   const canCraftNow = canCraft();
 
+  const {
+    showRewardModal,
+    rewardFragment,
+    setShowRewardModal,
+    grantCraftingReward,
+  } = useSchoolStore();
+
+  const determineSchoolFromFan = (fan: CraftedFan): SchoolId => {
+    const materials = [fan.frameMaterial.name, fan.surfaceMaterial.name].join(' ');
+
+    if (materials.includes('檀') || (fan.techniques.some(t => t.id.includes('gold')) && fan.totalScore >= 70)) {
+      return 'suzhou';
+    }
+    if (materials.includes('棕竹') || materials.includes('柿漆') || materials.includes('桑皮纸')) {
+      return 'hangzhou';
+    }
+    if (materials.includes('竹') && fan.techniques.some(t => t.id.includes('carving'))) {
+      return 'sichuan';
+    }
+    if (materials.includes('象牙') || materials.includes('玳瑁')) {
+      return 'guangdong';
+    }
+    if (fan.quality === 'masterpiece' || materials.includes('玉') || materials.includes('缂丝')) {
+      return 'beijing';
+    }
+    if (materials.includes('鹅') || materials.includes('桐油') || materials.includes('棉纸')) {
+      return 'xiangtan';
+    }
+
+    const schools: SchoolId[] = ['suzhou', 'hangzhou', 'sichuan', 'guangdong', 'beijing', 'xiangtan'];
+    return schools[Math.floor(Math.random() * schools.length)];
+  };
+
   const handleStartCraft = async () => {
     await startCrafting();
   };
+
+  useEffect(() => {
+    if (showResult && lastCraftedFan && !craftingRewardSchool) {
+      const schoolId = determineSchoolFromFan(lastCraftedFan);
+      setCraftingRewardSchool(schoolId);
+      if (lastCraftedFan.quality === 'exquisite' || lastCraftedFan.quality === 'masterpiece') {
+        grantCraftingReward(schoolId);
+      }
+    }
+    if (!showResult) {
+      setCraftingRewardSchool(null);
+    }
+  }, [showResult, lastCraftedFan, craftingRewardSchool, grantCraftingReward]);
 
   const getTechniqueForStep = (step: CraftStep) => {
     return selectedTechniques[step] || null;
@@ -201,6 +250,13 @@ export default function Workshop() {
         <CraftResultModal
           fan={lastCraftedFan}
           onClose={() => setShowResult(false)}
+        />
+      )}
+
+      {showRewardModal && rewardFragment && (
+        <CraftingRewardModal
+          fragment={rewardFragment}
+          onClose={() => setShowRewardModal(false)}
         />
       )}
     </div>
@@ -854,3 +910,87 @@ function CraftResultModal({ fan, onClose }: { fan: CraftedFan; onClose: () => vo
     </div>
   );
 }
+
+function CraftingRewardModal({
+  fragment,
+  onClose,
+}: {
+  fragment: import('@/types/fan').SchoolFragment;
+  onClose: () => void;
+}) {
+  const rarityInfo = FRAGMENT_RARITY_INFO[fragment.rarity];
+  const school = SCHOOLS.find((s) => s.id === fragment.schoolId);
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-ink-800/60 backdrop-blur-sm">
+      <div className="bg-white rounded-2xl shadow-elegant-hover w-full max-w-md overflow-hidden opacity-0 animate-fade-in-up" style={{ animationFillMode: 'forwards' }}>
+        <div className={`relative p-8 text-center ${
+          fragment.rarity === 'legendary'
+            ? 'bg-gradient-to-br from-gold-400 via-vermilion-500 to-gold-400'
+            : fragment.rarity === 'epic'
+            ? 'bg-gradient-to-br from-gold-400 to-gold-600'
+            : fragment.rarity === 'rare'
+            ? 'bg-gradient-to-br from-bamboo-400 to-bamboo-600'
+            : 'bg-gradient-to-br from-ink-400 to-ink-600'
+        } text-white`}>
+          <button
+            onClick={onClose}
+            className="absolute top-4 right-4 p-1.5 hover:bg-white/20 rounded-lg transition-colors"
+          >
+            <X size={20} />
+          </button>
+
+          <div className="mb-4 flex justify-center">
+            {fragment.rarity === 'legendary' ? (
+              <Crown size={40} className="text-gold-300" />
+            ) : fragment.rarity === 'epic' ? (
+              <Award size={40} className="text-gold-300" />
+            ) : (
+              <Sparkles size={40} className="text-white/80" />
+            )}
+          </div>
+
+          <div className="inline-block px-3 py-1 bg-white/20 rounded-full text-sm mb-3">
+            🎉 制作获得图鉴碎片！
+          </div>
+
+          <div className="text-6xl mb-3">{fragment.icon}</div>
+          <h3 className="font-serif-sc text-2xl font-bold mb-1">{fragment.title}</h3>
+          <p className="text-white/70 text-sm">{school?.name} · {rarityInfo.label}品质</p>
+        </div>
+
+        <div className="p-6">
+          <div className="bg-paper-50 rounded-xl p-4 mb-5">
+            <div className="flex items-center gap-1.5 mb-2">
+              <Sparkles size={14} className="text-vermilion-500" />
+              <span className="text-xs font-bold text-ink-700">碎片内容</span>
+            </div>
+            <p className="text-sm text-ink-600 leading-relaxed">{fragment.content}</p>
+          </div>
+
+          <div className="bg-bamboo-50 rounded-xl p-4 mb-5 border border-bamboo-200">
+            <div className="flex items-center gap-2">
+              <div className="w-8 h-8 bg-bamboo-500 rounded-full flex items-center justify-center">
+                <Gift size={16} className="text-white" />
+              </div>
+              <div>
+                <p className="text-xs text-bamboo-700 font-bold">制作奖励提示</p>
+                <p className="text-sm text-ink-700">
+                  制作珍品及以上品质的扇子，有机会获得对应流派的图鉴碎片
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <button
+            onClick={onClose}
+            className="w-full py-3 bg-gradient-to-r from-vermilion-500 to-gold-500 text-white font-serif-sc font-bold rounded-xl hover:shadow-lg hover:shadow-vermilion-500/30 transition-all"
+          >
+            收入图鉴
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
