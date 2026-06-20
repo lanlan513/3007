@@ -10,6 +10,28 @@ import {
 const IMAGE_URL = (prompt: string, size: string = 'landscape_16_9') =>
   `https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=${encodeURIComponent(prompt)}&image_size=${size}`;
 
+const ROUND_SUFFIX = (n: number) => n > 1 ? ` · 第${n}轮` : '';
+
+function buildRoundSections(round: number): (ScrollSection & { round: number; originalId: string })[] {
+  return scrollSections.map((s, i) => ({
+    ...s,
+    round,
+    originalId: s.id,
+    id: round === 1 ? s.id : `${s.id}-r${round}`,
+    title: round === 1 ? s.title : `${s.title}${ROUND_SUFFIX(round)}`,
+    stories: s.stories.map(st => ({
+      ...st,
+      id: round === 1 ? st.id : `${st.id}-r${round}`,
+    })),
+    fanDevelopments: s.fanDevelopments.map(fd => ({
+      ...fd,
+      id: round === 1 ? fd.id : `${fd.id}-r${round}`,
+    })),
+    historicalFigures: s.historicalFigures,
+    artworks: s.artworks,
+  }));
+}
+
 export default function FanCultureScroll() {
   const scrollRef = useRef<HTMLDivElement>(null);
   const sectionRefs = useRef<Record<string, HTMLDivElement | null>>({});
@@ -17,6 +39,7 @@ export default function FanCultureScroll() {
   const fanRefs = useRef<Record<string, HTMLDivElement | null>>({});
   const figureRefs = useRef<Record<string, HTMLDivElement | null>>({});
   const lastScrollPos = useRef(0);
+  const loadingMoreRef = useRef(false);
 
   const {
     setCurrentSection, unlockStory, discoverFan, unlockFigure, addDistance,
@@ -29,8 +52,31 @@ export default function FanCultureScroll() {
   const [scrollProgress, setScrollProgress] = useState(0);
   const [currentDynastyIndex, setCurrentDynastyIndex] = useState(0);
   const [scrolledOnce, setScrolledOnce] = useState(false);
+  const [rounds, setRounds] = useState(1);
+  const [allSections, setAllSections] = useState(() => buildRoundSections(1));
 
-  const TOTAL_HEIGHT = scrollSections.length * 100;
+  const appendNextRound = useCallback(() => {
+    if (loadingMoreRef.current) return;
+    loadingMoreRef.current = true;
+
+    setRounds(prev => {
+      const next = prev + 1;
+      setAllSections(prevSections => [...prevSections, ...buildRoundSections(next)]);
+      return next;
+    });
+
+    requestAnimationFrame(() => {
+      loadingMoreRef.current = false;
+    });
+  }, []);
+
+  useEffect(() => {
+    const newSections = [];
+    for (let r = 1; r <= rounds; r++) {
+      newSections.push(...buildRoundSections(r));
+    }
+    setAllSections(newSections);
+  }, []);
 
   const handleScroll = useCallback(() => {
     const scrollEl = scrollRef.current;
@@ -51,10 +97,17 @@ export default function FanCultureScroll() {
       setScrolledOnce(true);
     }
 
-    const sectionHeights = scrollSections.map((_, i) => (i + 1) * (scrollHeight / scrollSections.length));
-    const idx = sectionHeights.findIndex(h => scrollTop < h);
-    setCurrentDynastyIndex(idx === -1 ? scrollSections.length - 1 : idx);
-  }, [addDistance, scrolledOnce]);
+    if (scrollHeight > 0 && scrollTop >= scrollHeight - 800) {
+      appendNextRound();
+    }
+
+    const baseSections = scrollSections;
+    const sectionHeights = baseSections.map((_, i) => (i + 1) * (scrollHeight / baseSections.length));
+    const rawIdx = sectionHeights.findIndex(h => scrollTop < h);
+    const currentRound = Math.floor(scrollTop / (scrollHeight / rounds)) + 1;
+    const idx = rawIdx === -1 ? baseSections.length - 1 : rawIdx;
+    setCurrentDynastyIndex(idx % baseSections.length);
+  }, [addDistance, scrolledOnce, rounds, appendNextRound]);
 
   useEffect(() => {
     const scrollEl = scrollRef.current;
@@ -69,7 +122,7 @@ export default function FanCultureScroll() {
         entries.forEach((entry) => {
           if (entry.isIntersecting && entry.intersectionRatio >= 0.2) {
             const id = entry.target.getAttribute('data-section-id');
-            const section = scrollSections.find(s => s.id === id);
+            const section = allSections.find(s => s.id === id);
             if (section) {
               setCurrentSection(
                 section.id,
@@ -90,7 +143,7 @@ export default function FanCultureScroll() {
     });
 
     return () => observer.disconnect();
-  }, [setCurrentSection]);
+  }, [setCurrentSection, allSections]);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -110,7 +163,7 @@ export default function FanCultureScroll() {
     });
 
     return () => observer.disconnect();
-  }, [unlockStory]);
+  }, [unlockStory, allSections]);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -130,7 +183,7 @@ export default function FanCultureScroll() {
     });
 
     return () => observer.disconnect();
-  }, [discoverFan]);
+  }, [discoverFan, allSections]);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -150,7 +203,7 @@ export default function FanCultureScroll() {
     });
 
     return () => observer.disconnect();
-  }, [unlockFigure]);
+  }, [unlockFigure, allSections]);
 
   useEffect(() => {
     if (newNotification) {
@@ -186,11 +239,12 @@ export default function FanCultureScroll() {
         style={{ scrollBehavior: 'smooth' }}
       >
         {!scrolledOnce && <ScrollHintOverlay />}
-        {scrollSections.map((section, idx) => (
+        {allSections.map((section, idx) => (
           <DynastySection
             key={section.id}
             section={section}
             index={idx}
+            round={section.round}
             sectionRef={(el) => (sectionRefs.current[section.id] = el)}
             storyRef={(el, id) => (storyRefs.current[id] = el)}
             fanRef={(el, id) => (fanRefs.current[id] = el)}
@@ -201,7 +255,7 @@ export default function FanCultureScroll() {
             unlockedFigures={unlockedFigures}
           />
         ))}
-        <EndOfScroll achievements={achievements} />
+        <LoadingMoreIndicator rounds={rounds} />
       </div>
 
       {activeStoryModal && (
@@ -302,11 +356,12 @@ function ScrollHintOverlay() {
 }
 
 function DynastySection({
-  section, index, sectionRef, storyRef, fanRef, figureRef,
+  section, index, round, sectionRef, storyRef, fanRef, figureRef,
   onStoryClick, unlockedStories, discoveredFans, unlockedFigures,
 }: {
-  section: ScrollSection;
+  section: ScrollSection & { round: number; originalId: string };
   index: number;
+  round: number;
   sectionRef: (el: HTMLDivElement | null) => void;
   storyRef: (el: HTMLDivElement | null, id: string) => void;
   fanRef: (el: HTMLDivElement | null, id: string) => void;
@@ -342,7 +397,7 @@ function DynastySection({
       <div className="absolute inset-0 bg-gradient-to-b from-ink-900/70 via-ink-900/50 to-ink-900/80" />
 
       <div className="relative z-10 container mx-auto px-6 py-20 md:py-28 lg:py-36 max-w-6xl">
-        <SectionHeader section={section} index={index} primaryColor={bg.primaryColor} />
+        <SectionHeader section={section} index={index} primaryColor={bg.primaryColor} round={round} />
 
         <div className={`mt-12 md:mt-20 grid lg:grid-cols-12 gap-8 lg:gap-12 ${
           isEven ? '' : 'lg:[direction:rtl]'
@@ -384,12 +439,14 @@ function DynastySection({
 }
 
 function SectionHeader({
-  section, index, primaryColor,
+  section, index, primaryColor, round,
 }: {
-  section: ScrollSection;
+  section: ScrollSection & { round: number; originalId: string };
   index: number;
   primaryColor: string;
+  round: number;
 }) {
+  const displayIndex = (index % scrollSections.length) + 1;
   return (
     <div className="animate-on-scroll opacity-0 translate-y-8 transition-all duration-1000 ease-out">
       <div className="flex items-start gap-4 md:gap-6">
@@ -400,7 +457,7 @@ function SectionHeader({
             boxShadow: `0 8px 32px ${primaryColor}40`,
           }}
         >
-          {index + 1}
+          {displayIndex}
         </div>
 
         <div className="flex-1 pt-2">
@@ -416,6 +473,12 @@ function SectionHeader({
               <Clock size={12} />
               {section.era}
             </span>
+            {round > 1 && (
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-serif-sc font-medium bg-gold-400/20 text-gold-300 border border-gold-400/30">
+                <ScrollIcon size={10} />
+                第{round}轮回溯
+              </span>
+            )}
           </div>
 
           <h2 className="font-serif-sc text-3xl md:text-5xl font-bold text-white mb-3 leading-tight">
@@ -886,19 +949,19 @@ function JourneyPanel() {
   } = useJourneyStore();
 
   return (
-    <div
-      className={`fixed inset-y-0 right-0 z-50 w-full max-w-md transform transition-transform duration-500 ease-out ${
-        journeyPanelOpen ? 'translate-x-0' : 'translate-x-full'
-      }`}
-    >
+    <>
       {journeyPanelOpen && (
         <div
-          className="absolute inset-0 bg-ink-900/50 backdrop-blur-sm -translate-x-full"
+          className="fixed inset-0 z-40 bg-ink-900/50 backdrop-blur-sm transition-opacity"
           onClick={() => setJourneyPanelOpen(false)}
         />
       )}
-
-      <div className="relative h-full bg-gradient-to-b from-paper-50 to-paper-100 shadow-2xl flex flex-col">
+      <div
+        className={`fixed inset-y-0 right-0 z-50 w-full max-w-md transform transition-transform duration-500 ease-out ${
+          journeyPanelOpen ? 'translate-x-0' : 'translate-x-full'
+        }`}
+      >
+        <div className="relative h-full bg-gradient-to-b from-paper-50 to-paper-100 shadow-2xl flex flex-col">
         <div className="p-6 border-b border-paper-200 bg-gradient-to-r from-vermilion-500/10 to-gold-500/10">
           <div className="flex items-center justify-between mb-4">
             <div>
@@ -1084,8 +1147,9 @@ function JourneyPanel() {
             重置旅程
           </button>
         </div>
+        </div>
       </div>
-    </div>
+    </>
   );
 }
 
@@ -1130,31 +1194,17 @@ function NotificationToast({ message }: { message: string | null }) {
   );
 }
 
-function EndOfScroll({ achievements }: { achievements: string[] }) {
+function LoadingMoreIndicator({ rounds }: { rounds: number }) {
   return (
-    <section className="relative min-h-[60vh] flex items-center justify-center py-20">
-      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-gold-500/5 to-vermilion-500/10" />
-      <div className="relative text-center px-6 max-w-2xl">
-        <div className="text-6xl mb-6">🎋</div>
-        <h2 className="font-serif-sc text-3xl md:text-4xl font-bold text-white mb-4">
-          千年扇卷 · 至此览毕
-        </h2>
-        <p className="text-paper-300 leading-relaxed mb-8 text-sm md:text-base">
-          从先秦的礼仪之器，到唐宋的文人风雅，
-          再到明清的工艺臻绝，扇子承载了中华儿女数千年的情思与智慧。
-          愿你在这次旅程中，有所感，有所得。
-        </p>
-        <div className="flex items-center justify-center gap-4 flex-wrap">
-          <div className="px-5 py-3 rounded-xl bg-white/10 backdrop-blur-sm border border-white/20">
-            <div className="text-xs text-paper-400 font-serif-sc mb-1">获得成就</div>
-            <div className="font-serif-sc font-bold text-white text-xl">
-              {achievements.length} 项
-            </div>
-          </div>
-          <div className="text-paper-500 font-serif-sc text-2xl">·</div>
-          <div className="text-paper-300 text-sm font-serif-sc italic">
-            旅程虽尽，风雅长存
-          </div>
+    <section className="relative min-h-[30vh] flex items-center justify-center py-16">
+      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-gold-500/5 to-vermilion-500/8" />
+      <div className="relative text-center px-6">
+        <div className="animate-bounce text-4xl mb-4">🪭</div>
+        <div className="font-serif-sc text-xl text-gold-300/90 mb-2">
+          扇卷延续中...
+        </div>
+        <div className="text-paper-400 text-sm font-serif-sc">
+          已完成 {rounds} 轮回溯 · 千年扇道无尽
         </div>
       </div>
     </section>
@@ -1180,9 +1230,17 @@ const STORY_SHORT_NAMES: Record<string, string> = {
 };
 
 function getFanShortName(id: string): string {
-  return FAN_SHORT_NAMES[id] || id;
+  if (FAN_SHORT_NAMES[id]) return FAN_SHORT_NAMES[id];
+  const baseId = id.replace(/-r\d+$/, '');
+  const roundMatch = id.match(/-r(\d+)$/);
+  const baseName = FAN_SHORT_NAMES[baseId] || baseId;
+  return roundMatch ? `${baseName}·第${roundMatch[1]}轮` : baseName;
 }
 
 function getStoryShortName(id: string): string {
-  return STORY_SHORT_NAMES[id] || id;
+  if (STORY_SHORT_NAMES[id]) return STORY_SHORT_NAMES[id];
+  const baseId = id.replace(/-r\d+$/, '');
+  const roundMatch = id.match(/-r(\d+)$/);
+  const baseName = STORY_SHORT_NAMES[baseId] || baseId;
+  return roundMatch ? `${baseName}·第${roundMatch[1]}轮` : baseName;
 }
