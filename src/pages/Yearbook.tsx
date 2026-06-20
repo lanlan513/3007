@@ -24,16 +24,19 @@ import { Link } from 'react-router-dom';
 function CreateYearbookModal({
   onClose,
   onCreate,
+  favoritesCount,
 }: {
   onClose: () => void;
-  onCreate: (title: string, coverTermId: string) => string;
+  onCreate: (title: string, coverTermId: string, importFavorites: boolean) => string;
+  favoritesCount: number;
 }) {
   const [title, setTitle] = useState('');
   const [coverTermId, setCoverTermId] = useState(getCurrentSolarTerm().id);
+  const [importFavorites, setImportFavorites] = useState(favoritesCount > 0);
 
   const handleCreate = () => {
     if (!title.trim()) return;
-    onCreate(title.trim(), coverTermId);
+    onCreate(title.trim(), coverTermId, importFavorites);
     onClose();
   };
 
@@ -43,7 +46,7 @@ function CreateYearbookModal({
       <div className="relative bg-white rounded-2xl shadow-elegant-hover p-6 w-full max-w-md animate-fade-in-up" style={{ animationDuration: '0.3s' }}>
         <h3 className="font-serif-sc text-xl font-bold text-ink-800 mb-4">创建文化年鉴</h3>
 
-        <div className="space-y-4">
+        <div className="space-y-5">
           <div>
             <label className="block text-sm text-ink-600 font-serif-sc mb-1">年鉴名称</label>
             <input
@@ -56,24 +59,51 @@ function CreateYearbookModal({
           </div>
 
           <div>
-            <label className="block text-sm text-ink-600 font-serif-sc mb-1">封面节气</label>
-            <div className="grid grid-cols-4 gap-2 max-h-48 overflow-y-auto">
+            <label className="block text-sm text-ink-600 font-serif-sc mb-2">封面节气</label>
+            <div className="grid grid-cols-6 gap-1.5 max-h-40 overflow-y-auto p-1">
               {SOLAR_TERMS.map(term => (
                 <button
                   key={term.id}
                   onClick={() => setCoverTermId(term.id)}
-                  className={`p-2 rounded-lg text-center text-sm border transition-all ${
+                  className={`p-1.5 rounded-lg text-center transition-all ${
                     coverTermId === term.id
-                      ? 'border-vermilion-400 bg-vermilion-50 text-vermilion-700 shadow-sm'
-                      : 'border-paper-200 hover:border-paper-300 text-ink-500'
+                      ? 'bg-vermilion-50 border-2 border-vermilion-400 shadow-sm'
+                      : 'bg-paper-50 border-2 border-transparent hover:border-paper-200'
                   }`}
                 >
                   <span className="block text-lg">{term.icon}</span>
-                  <span className="font-serif-sc text-xs">{term.name}</span>
+                  <span className="font-serif-sc text-[10px] text-ink-600">{term.name}</span>
                 </button>
               ))}
             </div>
           </div>
+
+          {favoritesCount > 0 && (
+            <div
+              className={`p-4 rounded-xl border-2 cursor-pointer transition-all ${
+                importFavorites
+                  ? 'bg-gold-50 border-gold-300'
+                  : 'bg-paper-50 border-paper-200 hover:border-paper-300'
+              }`}
+              onClick={() => setImportFavorites(!importFavorites)}
+            >
+              <div className="flex items-start gap-3">
+                <div className={`w-5 h-5 rounded-md border-2 flex items-center justify-center shrink-0 mt-0.5 ${
+                  importFavorites ? 'bg-gold-500 border-gold-500' : 'border-paper-300'
+                }`}>
+                  {importFavorites && <span className="text-white text-xs">✓</span>}
+                </div>
+                <div className="flex-1">
+                  <p className={`font-serif-sc font-medium text-sm ${importFavorites ? 'text-gold-700' : 'text-ink-700'}`}>
+                    导入已收藏的节气
+                  </p>
+                  <p className="text-xs text-ink-400 mt-0.5">
+                    将您已收藏的 <span className="text-gold-600 font-medium">{favoritesCount}</span> 个节气自动加入年鉴
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
 
         <div className="flex items-center justify-end gap-3 mt-6">
@@ -143,7 +173,9 @@ function YearbookCard({
   onDelete: () => void;
   expanded: boolean;
 }) {
-  const { removeYearbookEntry } = useSolarTermStore();
+  const { removeYearbookEntry, importFavoritesToYearbook, favorites } = useSolarTermStore();
+  const [showImportToast, setShowImportToast] = useState(false);
+  const [importedCount, setImportedCount] = useState(0);
   const coverTerm = SOLAR_TERMS.find(t => t.id === yearbook.coverTerm);
   const entriesWithTerms = yearbook.entries.map(entry => ({
     ...entry,
@@ -184,6 +216,18 @@ function YearbookCard({
     folding: { name: '折扇', icon: <Fan size={14} />, color: 'text-amber-500' },
     feather: { name: '羽扇', icon: <Feather size={14} />, color: 'text-sky-500' },
   };
+
+  const handleImportFavorites = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    const count = importFavoritesToYearbook(yearbook.id);
+    setImportedCount(count);
+    setShowImportToast(true);
+    setTimeout(() => setShowImportToast(false), 2500);
+  };
+
+  const availableToImport = favorites.filter(
+    fav => !yearbook.entries.some(e => e.termId === fav.termId)
+  ).length;
 
   return (
     <div
@@ -227,6 +271,15 @@ function YearbookCard({
             </div>
           </div>
           <div className="flex items-center gap-2">
+            {availableToImport > 0 && expanded && (
+              <button
+                onClick={handleImportFavorites}
+                className="px-3 py-1.5 rounded-lg bg-gold-50 border border-gold-200 text-gold-700 text-xs font-serif-sc hover:bg-gold-100 transition-colors flex items-center gap-1"
+              >
+                <Plus size={12} />
+                导入收藏 ({availableToImport})
+              </button>
+            )}
             <button
               onClick={(e) => {
                 e.stopPropagation();
@@ -245,19 +298,36 @@ function YearbookCard({
       </div>
 
       {expanded && (
-        <div className="px-6 pb-6 animate-fade-in" style={{ animationDuration: '0.3s' }}>
+        <div className="px-6 pb-6 animate-fade-in relative" style={{ animationDuration: '0.3s' }}>
+          {showImportToast && (
+            <div className="absolute top-2 left-1/2 -translate-x-1/2 z-20 px-4 py-2 bg-bamboo-500 text-white rounded-xl shadow-lg text-sm font-serif-sc animate-fade-in-down">
+              ✓ 成功导入 {importedCount} 个收藏节气
+            </div>
+          )}
+
           {entriesWithTerms.length === 0 ? (
-            <div className="text-center py-8">
-              <BookOpen size={32} className="text-ink-200 mx-auto mb-3" />
-              <p className="text-ink-400 font-serif-sc">暂无收录节气</p>
-              <p className="text-ink-300 text-sm mt-1">在节气扇历中收藏节气，即可加入年鉴</p>
-              <Link
-                to="/solar-terms"
-                className="inline-flex items-center gap-2 mt-4 px-4 py-2 bg-vermilion-500 text-white rounded-xl text-sm font-serif-sc hover:bg-vermilion-600 transition-colors"
-              >
-                <Plus size={14} />
-                前往收藏
-              </Link>
+            <div className="text-center py-10">
+              <div className="text-5xl mb-4">🪭</div>
+              <p className="text-ink-500 font-serif-sc text-lg">暂无收录节气</p>
+              <p className="text-ink-300 text-sm mt-1">导入您已收藏的节气，或前往节气扇历探索</p>
+              <div className="flex items-center justify-center gap-3 mt-5">
+                {favorites.length > 0 && (
+                  <button
+                    onClick={handleImportFavorites}
+                    className="inline-flex items-center gap-2 px-4 py-2 bg-gold-500 text-white rounded-xl text-sm font-serif-sc hover:bg-gold-600 transition-colors shadow-md"
+                  >
+                    <Plus size={14} />
+                    导入收藏 ({favorites.length})
+                  </button>
+                )}
+                <Link
+                  to="/solar-terms"
+                  className="inline-flex items-center gap-2 px-4 py-2 bg-vermilion-500 text-white rounded-xl text-sm font-serif-sc hover:bg-vermilion-600 transition-colors"
+                >
+                  <Fan size={14} />
+                  探索节气
+                </Link>
+              </div>
             </div>
           ) : (
             <div className="space-y-6">
@@ -285,11 +355,40 @@ function YearbookCard({
                 })}
               </div>
 
+              <div>
+                <div className="flex items-center gap-2 mb-3">
+                  <Fan size={18} className="text-vermilion-500" />
+                  <span className="font-serif-sc font-bold text-ink-700 text-lg">扇韵珍藏</span>
+                  <span className="text-xs text-ink-400 ml-1">· {entriesWithTerms.length}把藏扇</span>
+                </div>
+                <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-3">
+                  {entriesWithTerms.slice(0, 6).map(entry => {
+                    const fanImageUrl = `https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=${encodeURIComponent(entry.term!.fan.imagePrompt)}&image_size=square_hd`;
+                    return (
+                      <div key={entry.termId} className="group relative">
+                        <div className="aspect-square rounded-xl overflow-hidden bg-paper-100 shadow-elegant group-hover:shadow-elegant-hover transition-all duration-300 group-hover:-translate-y-1">
+                          <img
+                            src={fanImageUrl}
+                            alt={entry.term!.fan.name}
+                            className="w-full h-full object-cover"
+                            loading="lazy"
+                          />
+                        </div>
+                        <div className="mt-2 text-center">
+                          <p className="text-xs font-serif-sc font-medium text-ink-700 truncate">{entry.term!.name}</p>
+                          <p className="text-[10px] text-ink-400 truncate">{entry.term!.fan.name}</p>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="p-4 rounded-xl bg-paper-50 border border-paper-200">
                   <div className="flex items-center gap-2 mb-3">
                     <Fan size={16} className="text-vermilion-500" />
-                    <span className="font-serif-sc font-bold text-ink-700">扇具类型</span>
+                    <span className="font-serif-sc font-bold text-ink-700">扇具类型统计</span>
                   </div>
                   <div className="space-y-2">
                     {Object.entries(fanCategoryInfo).map(([key, info]) => {
@@ -387,43 +486,52 @@ function YearbookCard({
 
               <div>
                 <div className="flex items-center justify-between mb-3">
-                  <span className="font-serif-sc font-bold text-ink-700">收录节气</span>
-                  <span className="text-xs text-ink-400">{entriesWithTerms.length}/24</span>
+                  <span className="font-serif-sc font-bold text-ink-700">收录节气 · 扇韵集</span>
+                  <span className="text-xs text-ink-400">{entriesWithTerms.length}/24 把</span>
                 </div>
-                <div className="space-y-2 max-h-64 overflow-y-auto pr-1">
-                  {entriesWithTerms.map(entry => (
-                    <div
-                      key={entry.termId}
-                      className="flex items-center gap-3 p-3 rounded-xl bg-paper-50 border border-paper-200 hover:border-paper-300 transition-colors group"
-                    >
+                <div className="space-y-2 max-h-80 overflow-y-auto pr-1">
+                  {entriesWithTerms.map(entry => {
+                    const fanImageUrl = `https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=${encodeURIComponent(entry.term!.fan.imagePrompt)}&image_size=square_hd`;
+                    const fanCategoryLabel = entry.term!.fan.category === 'round' ? '团扇' : entry.term!.fan.category === 'folding' ? '折扇' : '羽扇';
+                    return (
                       <div
-                        className="w-10 h-10 rounded-lg flex items-center justify-center text-lg shrink-0"
-                        style={{ background: entry.term!.colorLight }}
+                        key={entry.termId}
+                        className="flex items-center gap-3 p-2.5 rounded-xl bg-paper-50 border border-paper-200 hover:border-paper-300 hover:shadow-sm transition-all group"
                       >
-                        {entry.term!.icon}
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2">
-                          <span className="font-serif-sc font-bold text-ink-800 text-sm">{entry.term!.name}</span>
-                          <span className="text-xs text-ink-400">{entry.term!.month}月{entry.term!.day}日</span>
+                        <div className="w-14 h-14 rounded-lg overflow-hidden shrink-0 bg-paper-100 shadow-sm">
+                          <img
+                            src={fanImageUrl}
+                            alt={entry.term!.fan.name}
+                            className="w-full h-full object-cover"
+                            loading="lazy"
+                          />
                         </div>
-                        <div className="flex items-center gap-3 text-xs text-ink-400 mt-0.5">
-                          <span className="flex items-center gap-1">
-                            <Fan size={10} /> {entry.fanChoice || entry.term!.fan.name}
-                          </span>
-                          <span className="flex items-center gap-1">
-                            <Palette size={10} /> {entry.artChoice || entry.term!.arts[0]?.title}
-                          </span>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 mb-1">
+                            <span className="font-serif-sc font-bold text-ink-800">{entry.term!.name}</span>
+                            <span className="text-[10px] px-1.5 py-0.5 rounded bg-vermilion-50 text-vermilion-600 font-serif-sc">
+                              {fanCategoryLabel}
+                            </span>
+                          </div>
+                          <p className="text-sm text-ink-600 font-serif-sc font-medium truncate">
+                            {entry.fanChoice || entry.term!.fan.name}
+                          </p>
+                          <p className="text-[11px] text-ink-400 mt-0.5 truncate">
+                            {entry.term!.fan.reason}
+                          </p>
                         </div>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            removeYearbookEntry(yearbook.id, entry.termId);
+                          }}
+                          className="p-1.5 rounded-lg text-ink-300 hover:text-vermilion-500 hover:bg-vermilion-50 transition-colors opacity-0 group-hover:opacity-100 shrink-0"
+                        >
+                          <Trash2 size={14} />
+                        </button>
                       </div>
-                      <button
-                        onClick={() => removeYearbookEntry(yearbook.id, entry.termId)}
-                        className="p-1.5 rounded-lg text-ink-300 hover:text-vermilion-500 hover:bg-vermilion-50 transition-colors opacity-0 group-hover:opacity-100"
-                      >
-                        <Trash2 size={14} />
-                      </button>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               </div>
 
@@ -465,8 +573,8 @@ export default function Yearbook() {
   const [expandedId, setExpandedId] = useState<string | null>(yearbooks.length > 0 ? yearbooks[0].id : null);
   const currentTerm = getCurrentSolarTerm();
 
-  const handleCreate = (title: string, coverTermId: string): string => {
-    const id = createYearbook(title, coverTermId);
+  const handleCreate = (title: string, coverTermId: string, importFavorites: boolean): string => {
+    const id = createYearbook(title, coverTermId, importFavorites);
     setExpandedId(id);
     return id;
   };
@@ -711,6 +819,7 @@ export default function Yearbook() {
         <CreateYearbookModal
           onClose={() => setShowCreateModal(false)}
           onCreate={handleCreate}
+          favoritesCount={favorites.length}
         />
       )}
     </div>

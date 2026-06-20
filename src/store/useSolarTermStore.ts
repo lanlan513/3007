@@ -40,10 +40,11 @@ interface SolarTermState {
   toggleFavorite: (termId: string) => void;
   isFavorite: (termId: string) => boolean;
   addNote: (termId: string, note: string) => void;
-  createYearbook: (title: string, coverTermId: string) => string;
+  createYearbook: (title: string, coverTermId: string, importFavorites?: boolean) => string;
   addYearbookEntry: (yearbookId: string, entry: YearbookEntry) => void;
   removeYearbookEntry: (yearbookId: string, termId: string) => void;
   deleteYearbook: (yearbookId: string) => void;
+  importFavoritesToYearbook: (yearbookId: string) => number;
   getTermById: (id: string) => SolarTermData | undefined;
 }
 
@@ -90,18 +91,67 @@ export const useSolarTermStore = create<SolarTermState>()(
         });
       },
 
-      createYearbook: (title, coverTermId) => {
+      createYearbook: (title, coverTermId, importFavorites = false) => {
         const id = `yearbook_${Date.now()}`;
+        const entries: YearbookEntry[] = [];
+
+        if (importFavorites) {
+          get().favorites.forEach(fav => {
+            const term = SOLAR_TERMS.find(t => t.id === fav.termId);
+            if (term) {
+              entries.push({
+                termId: term.id,
+                note: fav.note,
+                fanChoice: term.fan.name,
+                poemChoice: term.poems[0]?.title || '',
+                artChoice: term.arts[0]?.title || '',
+                createdAt: new Date().toISOString(),
+              });
+            }
+          });
+        }
+
         const newYearbook: Yearbook = {
           id,
           title,
           year: new Date().getFullYear(),
-          entries: [],
+          entries,
           createdAt: new Date().toISOString(),
           coverTerm: coverTermId,
         };
         set({ yearbooks: [...get().yearbooks, newYearbook] });
         return id;
+      },
+
+      importFavoritesToYearbook: (yearbookId) => {
+        const { favorites, yearbooks } = get();
+        let importedCount = 0;
+
+        const updatedYearbooks = yearbooks.map(yb => {
+          if (yb.id !== yearbookId) return yb;
+
+          const newEntries = [...yb.entries];
+          favorites.forEach(fav => {
+            const term = SOLAR_TERMS.find(t => t.id === fav.termId);
+            const exists = newEntries.some(e => e.termId === fav.termId);
+            if (term && !exists) {
+              newEntries.push({
+                termId: term.id,
+                note: fav.note,
+                fanChoice: term.fan.name,
+                poemChoice: term.poems[0]?.title || '',
+                artChoice: term.arts[0]?.title || '',
+                createdAt: new Date().toISOString(),
+              });
+              importedCount++;
+            }
+          });
+
+          return { ...yb, entries: newEntries };
+        });
+
+        set({ yearbooks: updatedYearbooks });
+        return importedCount;
       },
 
       addYearbookEntry: (yearbookId, entry) => {
