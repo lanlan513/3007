@@ -12,6 +12,8 @@ import FanCultureScroll from '@/pages/FanCultureScroll';
 import FanRegistry from '@/pages/FanRegistry';
 import FanLanguage from '@/pages/FanLanguage';
 import FanAnatomy from '@/pages/FanAnatomy';
+import SolarTermCalendar from '@/pages/SolarTermCalendar';
+import Yearbook from '@/pages/Yearbook';
 import Navbar from '@/components/Navbar';
 import { useState, useEffect } from 'react';
 import SearchBar from '@/components/SearchBar';
@@ -79,6 +81,8 @@ export default function App() {
           <Route path="/registry" element={<FanRegistry />} />
           <Route path="/fan-language" element={<FanLanguage />} />
           <Route path="/anatomy" element={<FanAnatomy />} />
+          <Route path="/solar-terms" element={<SolarTermCalendar />} />
+          <Route path="/yearbook" element={<Yearbook />} />
         </Routes>
       </div>
     </Router>

@@ -43,6 +43,8 @@ export default function Navbar({ onSearchClick }: NavbarProps) {
 
           <div className="hidden md:flex items-center gap-8">
             <NavLink to="/" label="首页" />
+            <NavLink to="/solar-terms" label="节气扇历" />
+            <NavLink to="/yearbook" label="文化年鉴" />
             <NavLink to="/scroll" label="文化长卷" />
             <NavLink to="/registry" label="天下扇谱" />
             <NavLink to="/anatomy" label="扇艺解构" />
@@ -83,6 +85,8 @@ export default function Navbar({ onSearchClick }: NavbarProps) {
         >
           <div className="flex flex-col gap-2 pt-2">
             <MobileNavLink to="/" label="首页" />
+            <MobileNavLink to="/solar-terms" label="节气扇历" />
+            <MobileNavLink to="/yearbook" label="文化年鉴" />
             <MobileNavLink to="/scroll" label="文化长卷" />
             <MobileNavLink to="/registry" label="天下扇谱" />
             <MobileNavLink to="/anatomy" label="扇艺解构" />
