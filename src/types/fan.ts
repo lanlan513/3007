@@ -377,12 +377,12 @@ export const FRAGMENT_RARITY_INFO: Record<string, { label: string; color: string
   legendary: { label: '传世', color: 'text-vermilion-600', bgColor: 'bg-vermilion-100' },
 };
 
-export const FRAGMENT_TYPE_INFO: Record<FragmentType, { label: string; icon: string }> = {
-  style: { label: '风格鉴赏', icon: '🎨' },
-  craft: { label: '工艺探秘', icon: '🔧' },
-  story: { label: '文化故事', icon: '📖' },
-  quiz: { label: '知识问答', icon: '❓' },
-  crafting: { label: '制作成就', icon: '✨' },
+export const FRAGMENT_TYPE_INFO: Record<FragmentType, { label: string; icon: string; source: string }> = {
+  style: { label: '风格鉴赏', icon: '🎨', source: '探索流派获得' },
+  craft: { label: '工艺探秘', icon: '🔧', source: '探索或答题获得' },
+  story: { label: '文化故事', icon: '📖', source: '探索或答题获得' },
+  quiz: { label: '知识问答', icon: '❓', source: '答对题目获得' },
+  crafting: { label: '制作成就', icon: '✨', source: '工坊制作珍品扇子获得' },
 };
 
 export const SCHOOLS: FanSchool[] = [

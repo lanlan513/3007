@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import { useWorkshopStore } from '@/store/useWorkshopStore';
 import { useSchoolStore } from '@/store/useSchoolStore';
 import { APPRENTICE_LEVELS, SCHOOLS, FRAGMENT_RARITY_INFO } from '@/types/fan';
@@ -43,6 +44,7 @@ const QUALITY_INFO: Record<string, { label: string; color: string; bgColor: stri
 };
 
 export default function Workshop() {
+  const location = useLocation();
   const {
     coins,
     level,
@@ -73,6 +75,7 @@ export default function Workshop() {
 
   const [activeTab, setActiveTab] = useState<'craft' | 'collection'>('craft');
   const [craftingRewardSchool, setCraftingRewardSchool] = useState<SchoolId | null>(null);
+  const [fromSchool, setFromSchool] = useState<SchoolId | null>(null);
   const levelInfo = APPRENTICE_LEVELS[level];
   const totalCost = getTotalCost();
   const estimatedScore = getEstimatedScore();
@@ -84,6 +87,25 @@ export default function Workshop() {
     setShowRewardModal,
     grantCraftingReward,
   } = useSchoolStore();
+
+  useEffect(() => {
+    const state = location.state as { fromSchool?: SchoolId } | null;
+    if (state?.fromSchool) {
+      setFromSchool(state.fromSchool);
+    }
+  }, [location.state]);
+
+  const getSchoolMaterialHint = (schoolId: SchoolId): string => {
+    const hints: Record<SchoolId, string> = {
+      suzhou: '紫檀木、红木、镶嵌工艺',
+      hangzhou: '棕竹、柿漆、桑皮纸',
+      sichuan: '竹丝、精雕工艺',
+      guangdong: '象牙、玳瑁、火画工艺',
+      beijing: '玉竹、缂丝、皇家工艺',
+      xiangtan: '鹅毛、桐油、棉纸',
+    };
+    return hints[schoolId];
+  };
 
   const determineSchoolFromFan = (fan: CraftedFan): SchoolId => {
     const materials = [fan.frameMaterial.name, fan.surfaceMaterial.name].join(' ');
@@ -143,6 +165,29 @@ export default function Workshop() {
           levelProgress={getLevelProgress()}
           onAddCoins={() => addCoins(50)}
         />
+
+        {fromSchool && (
+          <div className="mb-6 bg-gradient-to-r from-bamboo-50 to-gold-50 border border-bamboo-200 rounded-xl p-4 flex items-start gap-3">
+            <div className="text-2xl">🎯</div>
+            <div className="flex-1">
+              <p className="font-serif-sc font-bold text-ink-800 mb-1">
+                制作{SCHOOLS.find(s => s.id === fromSchool)?.name}，收集图鉴碎片
+              </p>
+              <p className="text-sm text-ink-600 mb-2">
+                制作珍品及以上品质的{SCHOOLS.find(s => s.id === fromSchool)?.name}，有机会获得「{SCHOOLS.find(s => s.id === fromSchool)?.name}制扇名师」碎片！
+              </p>
+              <p className="text-xs text-ink-500">
+                💡 提示：选择{SCHOOLS.find(s => s.id === fromSchool)?.shortName}扇传统材料（如{getSchoolMaterialHint(fromSchool)}）更容易制作出对应流派的扇子
+              </p>
+            </div>
+            <button
+              onClick={() => setFromSchool(null)}
+              className="text-ink-400 hover:text-ink-600 transition-colors"
+            >
+              <X size={18} />
+            </button>
+          </div>
+        )}
 
         <div className="flex items-center gap-2 mb-6">
           <button

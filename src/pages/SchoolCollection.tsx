@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useSchoolStore } from '@/store/useSchoolStore';
 import { SCHOOLS, FRAGMENT_RARITY_INFO, FRAGMENT_TYPE_INFO } from '@/types/fan';
 import type { SchoolId, FanSchool, SchoolFragment } from '@/types/fan';
@@ -344,6 +345,7 @@ function SchoolDetail({
   onBack: () => void;
   onSwitchTab: (tab: 'collection' | 'explore' | 'trade') => void;
 }) {
+  const navigate = useNavigate();
   const {
     getFragmentsBySchool,
     getCollectedFragmentsBySchool,
@@ -356,7 +358,7 @@ function SchoolDetail({
     startExploration,
     openQuiz,
     currentExploringSchool,
-    grantCraftingReward,
+    isFragmentCollectedByType,
   } = useSchoolStore();
 
   const school = SCHOOLS.find((s) => s.id === schoolId)!;
@@ -366,6 +368,7 @@ function SchoolDetail({
   const isCompleted = completedSchools.includes(schoolId);
   const isExploring = currentExploringSchool === schoolId;
   const difficultyInfo = DIFFICULTY_INFO[school.difficulty];
+  const hasCraftingFragment = isFragmentCollectedByType(schoolId, 'crafting');
 
   const handleExplore = () => {
     startExploration(schoolId);
@@ -377,14 +380,7 @@ function SchoolDetail({
   };
 
   const handleCrafting = () => {
-    const { getRandomUncollectedFragment, collectFragment, setShowRewardModal } = useSchoolStore.getState();
-    const fragment = getRandomUncollectedFragment(schoolId, 'crafting');
-    if (fragment) {
-      collectFragment(fragment.id, 'crafting');
-      setActiveFragment(fragment);
-      setShowFragmentModal(true);
-      setShowRewardModal(false);
-    }
+    navigate('/workshop', { state: { fromSchool: schoolId } });
   };
 
   return (
@@ -442,9 +438,10 @@ function SchoolDetail({
               />
               <ActionButton
                 icon={<Hammer size={16} />}
-                label="制作获取"
+                label={hasCraftingFragment ? '已获得制扇成就' : '前往工坊制作'}
                 onClick={handleCrafting}
                 variant="bamboo"
+                disabled={hasCraftingFragment}
               />
             </div>
           </div>
@@ -545,11 +542,13 @@ function ActionButton({
   label,
   onClick,
   variant,
+  disabled = false,
 }: {
   icon: React.ReactNode;
   label: string;
   onClick: () => void;
   variant: 'vermilion' | 'gold' | 'bamboo';
+  disabled?: boolean;
 }) {
   const variants = {
     vermilion: 'bg-vermilion-500 hover:bg-vermilion-600 text-white',
@@ -560,7 +559,10 @@ function ActionButton({
   return (
     <button
       onClick={onClick}
-      className={`flex items-center gap-2 px-4 py-2 rounded-xl font-serif-sc text-sm transition-all shadow-md hover:shadow-lg ${variants[variant]}`}
+      disabled={disabled}
+      className={`flex items-center gap-2 px-4 py-2 rounded-xl font-serif-sc text-sm transition-all shadow-md ${
+        disabled ? 'opacity-60 cursor-not-allowed' : 'hover:shadow-lg'
+      } ${variants[variant]}`}
     >
       {icon}
       {label}
@@ -602,7 +604,7 @@ function FragmentCard({
   collected: boolean;
   count: number;
   rarityInfo: { label: string; color: string; bgColor: string };
-  typeInfo: { label: string; icon: string };
+  typeInfo: { label: string; icon: string; source: string };
   onClick: () => void;
 }) {
   return (
@@ -611,12 +613,17 @@ function FragmentCard({
       className={`relative p-4 rounded-xl border-2 transition-all ${
         collected
           ? 'border-paper-200 bg-white hover:border-vermilion-300 hover:shadow-md cursor-pointer'
-          : 'border-paper-100 bg-paper-50 opacity-60'
+          : 'border-dashed border-paper-200 bg-paper-50 hover:bg-paper-100 cursor-help'
       }`}
     >
       {!collected && (
-        <div className="absolute inset-0 flex items-center justify-center rounded-xl bg-white/50 backdrop-blur-[1px]">
-          <Lock size={24} className="text-ink-400" />
+        <div className="absolute top-2 right-2">
+          <div className="group relative">
+            <Lock size={18} className="text-ink-400" />
+            <div className="absolute bottom-full right-0 mb-2 w-32 p-2 bg-ink-800 text-white text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
+              {typeInfo.source}
+            </div>
+          </div>
         </div>
       )}
 
@@ -630,7 +637,7 @@ function FragmentCard({
         <div className="text-3xl">{collected ? fragment.icon : '❓'}</div>
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 mb-1">
-            <h5 className={`font-serif-sc font-bold text-sm truncate ${collected ? 'text-ink-800' : 'text-ink-400'}`}>
+            <h5 className={`font-serif-sc font-bold text-sm truncate ${collected ? 'text-ink-800' : 'text-ink-500'}`}>
               {collected ? fragment.title : '???'}
             </h5>
           </div>
@@ -642,6 +649,12 @@ function FragmentCard({
               {typeInfo.icon} {typeInfo.label}
             </span>
           </div>
+          {!collected && (
+            <p className="text-xs text-ink-400 mt-2 flex items-center gap-1">
+              <span>💡</span>
+              <span>{typeInfo.source}</span>
+            </p>
+          )}
         </div>
       </div>
     </div>

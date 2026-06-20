@@ -130,6 +130,11 @@ export const useSchoolStore = create<SchoolStoreState>((set, get) => ({
     return Math.round((collected.length / allFragments.length) * 100);
   },
 
+  isFragmentCollectedByType: (schoolId, type) => {
+    const fragments = get().getFragmentsBySchool(schoolId).filter((f) => f.type === type);
+    return fragments.some((f) => get().isFragmentCollected(f.id));
+  },
+
   getRandomUncollectedFragment: (schoolId, type) => {
     let fragments = get().getFragmentsBySchool(schoolId);
     if (type) {
@@ -195,7 +200,14 @@ export const useSchoolStore = create<SchoolStoreState>((set, get) => ({
     set({ exploreProgress: newProgress });
 
     if (newProgress >= 100) {
-      const fragment = state.getRandomUncollectedFragment(state.currentExploringSchool, 'style');
+      const fragmentTypes: ('style' | 'craft' | 'story')[] = ['style', 'craft', 'story'];
+      const randomType = fragmentTypes[Math.floor(Math.random() * fragmentTypes.length)];
+      let fragment = state.getRandomUncollectedFragment(state.currentExploringSchool, randomType);
+      
+      if (!fragment) {
+        fragment = state.getRandomUncollectedFragment(state.currentExploringSchool);
+      }
+      
       if (fragment) {
         get().collectFragment(fragment.id, 'explore');
       }
@@ -225,7 +237,14 @@ export const useSchoolStore = create<SchoolStoreState>((set, get) => ({
         s.quizQuestions.some((q) => q.id === questionId)
       );
       if (school) {
-        const fragment = state.getRandomUncollectedFragment(school.id, 'quiz');
+        const fragmentTypes: ('quiz' | 'craft' | 'story' | 'style')[] = ['quiz', 'craft', 'story', 'style'];
+        const randomType = fragmentTypes[Math.floor(Math.random() * fragmentTypes.length)];
+        let fragment = state.getRandomUncollectedFragment(school.id, randomType);
+        
+        if (!fragment) {
+          fragment = state.getRandomUncollectedFragment(school.id);
+        }
+        
         if (fragment) {
           state.collectFragment(fragment.id, 'quiz');
           set({ activeFragment: fragment, showFragmentModal: true });
