@@ -51,6 +51,7 @@ export default function Navbar({ onSearchClick }: NavbarProps) {
             <NavLink to="/schools" label="流派图鉴" />
             <NavLink to="/windfield" label="风场模拟" />
             <NavLink to="/gallery" label="扇面画廊" />
+            <NavLink to="/fan-language" label="扇语系统" />
           </div>
 
           <div className="flex items-center gap-4">
@@ -89,6 +90,7 @@ export default function Navbar({ onSearchClick }: NavbarProps) {
             <MobileNavLink to="/schools" label="流派图鉴" />
             <MobileNavLink to="/windfield" label="风场模拟" />
             <MobileNavLink to="/gallery" label="扇面画廊" />
+            <MobileNavLink to="/fan-language" label="扇语系统" />
           </div>
         </div>
       </div>

@@ -10,6 +10,7 @@ import Figures from '@/pages/Figures';
 import FigureDetail from '@/pages/FigureDetail';
 import FanCultureScroll from '@/pages/FanCultureScroll';
 import FanRegistry from '@/pages/FanRegistry';
+import FanLanguage from '@/pages/FanLanguage';
 import Navbar from '@/components/Navbar';
 import { useState, useEffect } from 'react';
 import SearchBar from '@/components/SearchBar';
@@ -75,6 +76,7 @@ export default function App() {
           <Route path="/figure/:id" element={<FigureDetail />} />
           <Route path="/scroll" element={<FanCultureScroll />} />
           <Route path="/registry" element={<FanRegistry />} />
+          <Route path="/fan-language" element={<FanLanguage />} />
         </Routes>
       </div>
     </Router>

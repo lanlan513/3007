@@ -1102,6 +1102,170 @@ export interface UpdateFigurePayload extends Partial<CreateFigurePayload> {
   id: string;
 }
 
+export type FanGestureType =
+  | 'open_slow'
+  | 'open_fast'
+  | 'close_slow'
+  | 'close_fast'
+  | 'cover_face'
+  | 'cover_mouth'
+  | 'tap_palm'
+  | 'tap_shoulder'
+  | 'swing_left'
+  | 'swing_right'
+  | 'hold_high'
+  | 'hold_low'
+  | 'rotate'
+  | 'drop'
+  | 'press_chest';
+
+export interface FanGesture {
+  id: string;
+  type: FanGestureType;
+  name: string;
+  icon: string;
+  description: string;
+  meanings: FanGestureMeaning[];
+}
+
+export interface FanGestureMeaning {
+  context: string;
+  meaning: string;
+  emotion: string;
+  dynasty?: string;
+  source?: string;
+}
+
+export type FanScenarioCategory =
+  | 'court'
+  | 'scholar'
+  | 'romance'
+  | 'war'
+  | 'etiquette'
+  | 'performance'
+  | 'funeral'
+  | 'festival';
+
+export interface FanScenario {
+  id: string;
+  category: FanScenarioCategory;
+  categoryName: string;
+  title: string;
+  icon: string;
+  description: string;
+  historicalContext: string;
+  gestures: FanScenarioGesture[];
+  relatedStories: string[];
+}
+
+export interface FanScenarioGesture {
+  gestureId: string;
+  gestureName: string;
+  meaning: string;
+  usageExample: string;
+}
+
+export type FanSymbolCategory = 'color' | 'pattern' | 'material' | 'shape';
+
+export interface FanSymbol {
+  id: string;
+  category: FanSymbolCategory;
+  categoryName: string;
+  name: string;
+  icon: string;
+  meaning: string;
+  deepMeaning: string;
+  historicalNote: string;
+  examples: string[];
+}
+
+export interface PuzzleCharacter {
+  id: string;
+  name: string;
+  role: string;
+  description: string;
+  avatar: string;
+  hiddenIntent?: string;
+}
+
+export interface PuzzleAction {
+  characterId: string;
+  gesture: FanGestureType;
+  gestureName: string;
+  timing: string;
+  targetCharacterId?: string;
+  description: string;
+}
+
+export interface PuzzleQuestion {
+  id: string;
+  question: string;
+  options: { id: string; text: string }[];
+  correctOptionId: string;
+  explanation: string;
+  hint?: string;
+}
+
+export interface FanPuzzle {
+  id: string;
+  title: string;
+  difficulty: 'easy' | 'medium' | 'hard';
+  icon: string;
+  setting: string;
+  historicalBackground: string;
+  characters: PuzzleCharacter[];
+  actions: PuzzleAction[];
+  story: string;
+  questions: PuzzleQuestion[];
+  reward: string;
+}
+
+export interface FanEtiquette {
+  id: string;
+  title: string;
+  icon: string;
+  context: string;
+  rules: string[];
+  taboos: string[];
+  historicalNote: string;
+}
+
+export const FAN_GESTURE_TYPES: Record<FanGestureType, { name: string; icon: string }> = {
+  open_slow: { name: '缓开折扇', icon: '🪭' },
+  open_fast: { name: '疾开折扇', icon: '💨' },
+  close_slow: { name: '缓合折扇', icon: '🤏' },
+  close_fast: { name: '疾合折扇', icon: '⚡' },
+  cover_face: { name: '以扇遮面', icon: '🙈' },
+  cover_mouth: { name: '以扇掩口', icon: '🫢' },
+  tap_palm: { name: '扇击掌心', icon: '✋' },
+  tap_shoulder: { name: '轻拍肩头', icon: '👆' },
+  swing_left: { name: '左摇扇', icon: '↔️' },
+  swing_right: { name: '右摇扇', icon: '↔️' },
+  hold_high: { name: '举扇过顶', icon: '⬆️' },
+  hold_low: { name: '垂扇于膝', icon: '⬇️' },
+  rotate: { name: '转扇于手', icon: '🔄' },
+  drop: { name: '故意落扇', icon: '⬇️' },
+  press_chest: { name: '按扇于胸', icon: '❤️' },
+};
+
+export const SCENARIO_CATEGORIES: Record<FanScenarioCategory, { name: string; icon: string; color: string }> = {
+  court: { name: '宫廷朝堂', icon: '🏛️', color: 'gold' },
+  scholar: { name: '文人雅集', icon: '📚', color: 'bamboo' },
+  romance: { name: '男女情事', icon: '💕', color: 'vermilion' },
+  war: { name: '军事谋略', icon: '⚔️', color: 'ink' },
+  etiquette: { name: '日常礼仪', icon: '🙏', color: 'paper' },
+  performance: { name: '戏曲表演', icon: '🎭', color: 'vermilion' },
+  funeral: { name: '丧葬祭祀', icon: '🕯️', color: 'ink' },
+  festival: { name: '节庆习俗', icon: '🎊', color: 'gold' },
+};
+
+export const SYMBOL_CATEGORIES: Record<FanSymbolCategory, { name: string; icon: string }> = {
+  color: { name: '扇面颜色', icon: '🎨' },
+  pattern: { name: '纹饰图案', icon: '🖼️' },
+  material: { name: '材质用料', icon: '🧵' },
+  shape: { name: '扇型制式', icon: '🪭' },
+};
+
 export const REPAIR_TECHNIQUES: RepairTechnique[] = [
   {
     id: 'basic_assessment',
