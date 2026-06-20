@@ -48,12 +48,12 @@ function calculatePositions(
       positions.set(figure.id, { x, y });
     });
   } else {
-    const cols = Math.ceil(Math.sqrt(figures.length));
-    const rows = Math.ceil(figures.length / cols);
+    const cols = Math.ceil(Math.sqrt(relatedFigures.length));
+    const rows = Math.ceil(relatedFigures.length / cols);
     const cellW = width / (cols + 1);
     const cellH = height / (rows + 1);
 
-    figures.forEach((figure, index) => {
+    relatedFigures.forEach((figure, index) => {
       const col = index % cols;
       const row = Math.floor(index / cols);
       const x = cellW * (col + 1);
