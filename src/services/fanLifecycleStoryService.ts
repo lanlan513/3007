@@ -2,12 +2,11 @@ import type {
   Fan,
   FanLifeStory,
   LifecycleEvent,
-  LifecycleStage,
   HistoricalFigure,
 } from '@/types/fan';
 import { LIFECYCLE_STAGE_INFO, PRESERVATION_GRADES } from '@/types/fan';
-import { historicalFigures } from '../../api/data/figures';
-import { fans as allFans } from '../../api/data/fans';
+import { historicalFigures } from '@/data/historicalFigures';
+import { mockFans as allFans } from '@/data/mockFans';
 
 const DYNASTY_YEAR_MAP: Record<string, { start: number; end: number }> = {
   '商代': { start: -1600, end: -1046 },
