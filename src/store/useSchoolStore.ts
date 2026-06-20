@@ -35,6 +35,7 @@ interface SchoolStoreState {
   isFragmentCollected: (fragmentId: string) => boolean;
   getFragmentCount: (fragmentId: string) => number;
   getSchoolProgress: (schoolId: SchoolId) => number;
+  isFragmentCollectedByType: (schoolId: SchoolId, type: FragmentType) => boolean;
   getRandomUncollectedFragment: (schoolId: SchoolId, type?: FragmentType) => SchoolFragment | null;
 
   collectFragment: (fragmentId: string, source: 'explore' | 'quiz' | 'crafting' | 'trade' | 'gift') => void;
