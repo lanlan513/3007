@@ -4,14 +4,14 @@ import { registryEntries } from '@/data/registryData';
 
 interface RegistryStoreState {
   entries: FanRegistryEntry[];
-  selectedEntry: FanRegistryEntry | null;
+  selectedEntryId: string | null;
   showDetailModal: boolean;
   showClueModal: boolean;
   activeClue: RegistryClue | null;
   clueAnswer: string;
   clueError: string;
   showFieldModal: boolean;
-  activeFieldEntry: FanRegistryEntry | null;
+  activeFieldEntryId: string | null;
   activeFieldKey: string;
   fieldValue: string;
   newlyDiscovered: string | null;
@@ -22,12 +22,13 @@ interface RegistryStoreState {
 
   getVisibleEntries: () => FanRegistryEntry[];
   getEntryById: (id: string) => FanRegistryEntry | undefined;
+  getSelectedEntry: () => FanRegistryEntry | undefined;
   getCluesForEntry: (entryId: string) => RegistryClue[];
   getUnsolvedCluesForEntry: (entryId: string) => RegistryClue[];
   getStats: () => { total: number; discovered: number; locked: number; unlocked: number; completed: number; undiscovered: number };
 
   discoverEntry: (entryId: string) => void;
-  selectEntry: (entry: FanRegistryEntry | null) => void;
+  selectEntry: (entryId: string | null) => void;
   setShowDetailModal: (show: boolean) => void;
   setShowClueModal: (show: boolean) => void;
   setActiveClue: (clue: RegistryClue | null) => void;
@@ -35,7 +36,7 @@ interface RegistryStoreState {
   setClueError: (error: string) => void;
   submitClueAnswer: () => boolean;
   setShowFieldModal: (show: boolean) => void;
-  openFieldForEdit: (entry: FanRegistryEntry, fieldKey: string) => void;
+  openFieldForEdit: (entryId: string, fieldKey: string) => void;
   setFieldValue: (value: string) => void;
   submitFieldValue: () => boolean;
   setSearchKeyword: (keyword: string) => void;
@@ -48,14 +49,14 @@ interface RegistryStoreState {
 
 export const useRegistryStore = create<RegistryStoreState>((set, get) => ({
   entries: [...registryEntries],
-  selectedEntry: null,
+  selectedEntryId: null,
   showDetailModal: false,
   showClueModal: false,
   activeClue: null,
   clueAnswer: '',
   clueError: '',
   showFieldModal: false,
-  activeFieldEntry: null,
+  activeFieldEntryId: null,
   activeFieldKey: '',
   fieldValue: '',
   newlyDiscovered: null,
@@ -93,6 +94,12 @@ export const useRegistryStore = create<RegistryStoreState>((set, get) => ({
   },
 
   getEntryById: (id) => get().entries.find(e => e.id === id),
+
+  getSelectedEntry: () => {
+    const state = get();
+    if (!state.selectedEntryId) return undefined;
+    return state.entries.find(e => e.id === state.selectedEntryId);
+  },
 
   getCluesForEntry: (entryId) => {
     const entry = get().entries.find(e => e.id === entryId);
@@ -135,9 +142,9 @@ export const useRegistryStore = create<RegistryStoreState>((set, get) => ({
     });
   },
 
-  selectEntry: (entry) => set({ selectedEntry: entry, showDetailModal: !!entry }),
+  selectEntry: (entryId) => set({ selectedEntryId: entryId, showDetailModal: !!entryId }),
 
-  setShowDetailModal: (show) => set({ showDetailModal: show, selectedEntry: show ? get().selectedEntry : null }),
+  setShowDetailModal: (show) => set({ showDetailModal: show, selectedEntryId: show ? get().selectedEntryId : null }),
 
   setShowClueModal: (show) => set({
     showClueModal: show,
@@ -204,15 +211,17 @@ export const useRegistryStore = create<RegistryStoreState>((set, get) => ({
 
   setShowFieldModal: (show) => set({
     showFieldModal: show,
-    activeFieldEntry: show ? get().activeFieldEntry : null,
+    activeFieldEntryId: show ? get().activeFieldEntryId : null,
     activeFieldKey: show ? get().activeFieldKey : '',
     fieldValue: '',
   }),
 
-  openFieldForEdit: (entry, fieldKey) => {
+  openFieldForEdit: (entryId, fieldKey) => {
+    const entry = get().entries.find(e => e.id === entryId);
+    if (!entry) return;
     const field = entry.missingFields.find(f => f.key === fieldKey);
     set({
-      activeFieldEntry: entry,
+      activeFieldEntryId: entryId,
       activeFieldKey: fieldKey,
       fieldValue: field?.value || '',
       showFieldModal: true,
@@ -223,9 +232,9 @@ export const useRegistryStore = create<RegistryStoreState>((set, get) => ({
 
   submitFieldValue: () => {
     const state = get();
-    if (!state.activeFieldEntry || !state.activeFieldKey) return false;
+    if (!state.activeFieldEntryId || !state.activeFieldKey) return false;
 
-    const entryId = state.activeFieldEntry.id;
+    const entryId = state.activeFieldEntryId;
     const fieldKey = state.activeFieldKey;
     const value = state.fieldValue.trim();
 
@@ -261,7 +270,7 @@ export const useRegistryStore = create<RegistryStoreState>((set, get) => ({
             : e
         ),
         showFieldModal: false,
-        activeFieldEntry: null,
+        activeFieldEntryId: null,
         activeFieldKey: '',
         fieldValue: '',
       };

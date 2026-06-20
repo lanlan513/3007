@@ -28,6 +28,7 @@ export interface MissingField {
   filled: boolean;
   value: string;
   correctValue: string;
+  options: string[];
 }
 
 export interface FanRegistryEntry {

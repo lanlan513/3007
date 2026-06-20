@@ -120,7 +120,9 @@ function RegistryCard({ entry, onClick }: { entry: FanRegistryEntry; onClick: ()
 }
 
 function DetailModal() {
-  const { selectedEntry: entry, showDetailModal, setShowDetailModal, setActiveClue, setShowClueModal } = useRegistryStore();
+  const { getSelectedEntry, showDetailModal, setShowDetailModal, setActiveClue, setShowClueModal } = useRegistryStore();
+
+  const entry = getSelectedEntry();
 
   if (!showDetailModal || !entry) return null;
 
@@ -128,6 +130,7 @@ function DetailModal() {
   const status = REGISTRY_STATUS_INFO[entry.status];
 
   const unsolvedClues = entry.clues.filter(c => !c.solved);
+  const solvedClues = entry.clues.filter(c => c.solved);
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4" onClick={() => setShowDetailModal(false)}>
@@ -219,18 +222,38 @@ function DetailModal() {
                   </div>
                 </div>
               )}
+
+              {solvedClues.length > 0 && (
+                <div className="bg-bamboo-50 border border-bamboo-200 rounded-xl p-4 mb-4">
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className="text-bamboo-600 text-sm">✓</span>
+                    <span className="font-serif-sc font-bold text-bamboo-700 text-sm">已解线索</span>
+                  </div>
+                  <div className="space-y-2">
+                    {solvedClues.map((clue, i) => (
+                      <div key={clue.id} className="p-3 bg-white/60 rounded-lg border border-bamboo-100">
+                        <div className="flex items-start gap-2">
+                          <span className="text-bamboo-500 text-xs mt-0.5">线索{i + 1}</span>
+                          <span className="text-sm text-ink-600 flex-1 line-clamp-2">{clue.text}</span>
+                          <span className="text-bamboo-500 text-xs">已解</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-            <InfoField label="产地" value={entry.origin} entry={entry} fieldKey="origin" />
-            <InfoField label="年代" value={entry.dynasty} entry={entry} fieldKey="dynasty" />
-            <InfoField label="材质" value={entry.material} entry={entry} fieldKey="material" />
-            <InfoField label="用途" value={entry.usage} entry={entry} fieldKey="usage" />
+            <InfoField label="产地" value={entry.origin} entryId={entry.id} fieldKey="origin" />
+            <InfoField label="年代" value={entry.dynasty} entryId={entry.id} fieldKey="dynasty" />
+            <InfoField label="材质" value={entry.material} entryId={entry.id} fieldKey="material" />
+            <InfoField label="用途" value={entry.usage} entryId={entry.id} fieldKey="usage" />
           </div>
 
-          <InfoField label="制作工艺" value={entry.craftsmanship} entry={entry} fieldKey="craftsmanship" fullWidth />
-          <InfoField label="扇中典故" value={entry.story} entry={entry} fieldKey="story" fullWidth />
+          <InfoField label="制作工艺" value={entry.craftsmanship} entryId={entry.id} fieldKey="craftsmanship" fullWidth />
+          <InfoField label="扇中典故" value={entry.story} entryId={entry.id} fieldKey="story" fullWidth />
 
           {entry.inheritanceRecords.length > 0 && (
             <div className="mt-6">
@@ -264,10 +287,11 @@ function DetailModal() {
   );
 }
 
-function InfoField({ label, value, entry, fieldKey, fullWidth }: { label: string; value: string; entry: FanRegistryEntry; fieldKey: string; fullWidth?: boolean }) {
-  const missingField = entry.missingFields.find(f => f.key === fieldKey);
+function InfoField({ label, value, entryId, fieldKey, fullWidth }: { label: string; value: string; entryId: string; fieldKey: string; fullWidth?: boolean }) {
+  const { getEntryById, openFieldForEdit } = useRegistryStore();
+  const entry = getEntryById(entryId);
+  const missingField = entry?.missingFields.find(f => f.key === fieldKey);
   const isMissing = missingField && !missingField.filled;
-  const { openFieldForEdit } = useRegistryStore();
 
   return (
     <div className={fullWidth ? 'mb-4' : ''}>
@@ -275,7 +299,7 @@ function InfoField({ label, value, entry, fieldKey, fullWidth }: { label: string
         <span className="text-xs text-ink-400 font-serif-sc">{label}</span>
         {isMissing && (
           <button
-            onClick={() => openFieldForEdit(entry, fieldKey)}
+            onClick={() => openFieldForEdit(entryId, fieldKey)}
             className="text-xs text-vermilion-500 hover:text-vermilion-600 flex items-center gap-1 transition-colors"
           >
             <Sparkles size={10} />
@@ -285,7 +309,7 @@ function InfoField({ label, value, entry, fieldKey, fullWidth }: { label: string
       </div>
       {isMissing ? (
         <div
-          onClick={() => openFieldForEdit(entry, fieldKey)}
+          onClick={() => openFieldForEdit(entryId, fieldKey)}
           className="p-3 bg-paper-100/50 border border-dashed border-paper-300 rounded-xl text-ink-300 text-sm cursor-pointer hover:border-vermilion-300 hover:bg-vermilion-50/30 transition-colors"
         >
           {missingField.placeholder}
@@ -359,12 +383,30 @@ function ClueModal() {
 }
 
 function FieldFillModal() {
-  const { showFieldModal, setShowFieldModal, activeFieldEntry, activeFieldKey, fieldValue, setFieldValue, submitFieldValue } = useRegistryStore();
+  const { showFieldModal, setShowFieldModal, activeFieldEntryId, activeFieldKey, fieldValue, setFieldValue, submitFieldValue, getEntryById } = useRegistryStore();
+  const [error, setError] = useState('');
 
-  if (!showFieldModal || !activeFieldEntry) return null;
+  if (!showFieldModal || !activeFieldEntryId) return null;
 
-  const field = activeFieldEntry.missingFields.find(f => f.key === activeFieldKey);
+  const entry = getEntryById(activeFieldEntryId);
+  if (!entry) return null;
+
+  const field = entry.missingFields.find(f => f.key === activeFieldKey);
   if (!field) return null;
+
+  const handleSubmit = () => {
+    if (!fieldValue.trim()) {
+      setError('请选择或输入答案');
+      return;
+    }
+    const success = submitFieldValue();
+    if (!success && fieldValue.trim() !== field.correctValue) {
+      setError('此答案有误，请再想想');
+      setFieldValue('');
+    } else {
+      setError('');
+    }
+  };
 
   return (
     <div className="fixed inset-0 z-[60] flex items-center justify-center p-4" onClick={() => setShowFieldModal(false)}>
@@ -376,7 +418,7 @@ function FieldFillModal() {
           </div>
           <div>
             <h3 className="font-serif-sc text-lg font-bold text-ink-800">补全扇谱</h3>
-            <p className="text-xs text-ink-400">{activeFieldEntry.name} · {field.label}</p>
+            <p className="text-xs text-ink-400">{entry.name} · {field.label}</p>
           </div>
         </div>
 
@@ -384,26 +426,56 @@ function FieldFillModal() {
           <p className="text-ink-600 text-sm">{field.placeholder}</p>
         </div>
 
+        {field.options.length > 0 && (
+          <div className="space-y-2 mb-4">
+            <p className="text-xs text-ink-400 mb-2 font-serif-sc">选择你认为正确的答案：</p>
+            {field.options.map((option) => (
+              <button
+                key={option}
+                onClick={() => { setFieldValue(option); setError(''); }}
+                className={`w-full text-left p-3 rounded-xl border-2 transition-all text-sm font-serif-sc ${
+                  fieldValue === option
+                    ? 'border-bamboo-400 bg-bamboo-50 text-bamboo-700'
+                    : 'border-paper-200 bg-white text-ink-600 hover:border-paper-300 hover:bg-paper-50'
+                }`}
+              >
+                <div className="flex items-center gap-3">
+                  <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 ${
+                    fieldValue === option ? 'border-bamboo-500' : 'border-paper-300'
+                  }`}>
+                    {fieldValue === option && <div className="w-2.5 h-2.5 rounded-full bg-bamboo-500" />}
+                  </div>
+                  <span className="line-clamp-2">{option}</span>
+                </div>
+              </button>
+            ))}
+          </div>
+        )}
+
         <div className="mb-4">
+          <p className="text-xs text-ink-400 mb-2 font-serif-sc">或者自行输入答案：</p>
           <textarea
             value={fieldValue}
-            onChange={e => setFieldValue(e.target.value)}
+            onChange={e => { setFieldValue(e.target.value); setError(''); }}
             placeholder="输入你所知的信息……"
             className="w-full px-4 py-3 border-2 border-paper-300 rounded-xl text-ink-800 font-serif-sc focus:border-bamboo-400 focus:outline-none transition-colors bg-white resize-none"
-            rows={3}
-            autoFocus
+            rows={2}
           />
         </div>
 
+        {error && (
+          <p className="text-vermilion-500 text-xs mb-3">{error}</p>
+        )}
+
         <div className="flex gap-3">
           <button
-            onClick={() => setShowFieldModal(false)}
+            onClick={() => { setShowFieldModal(false); setError(''); }}
             className="flex-1 py-3 rounded-xl border border-paper-300 text-ink-600 hover:bg-paper-100 transition-colors text-sm"
           >
             取消
           </button>
           <button
-            onClick={() => submitFieldValue()}
+            onClick={handleSubmit}
             className="flex-1 py-3 rounded-xl bg-bamboo-500 text-white hover:bg-bamboo-600 transition-colors text-sm font-serif-sc font-bold"
           >
             确认提交
@@ -500,7 +572,7 @@ export default function FanRegistry() {
     if (entry.status === 'undiscovered') {
       discoverEntry(entry.id);
     } else {
-      selectEntry(entry);
+      selectEntry(entry.id);
     }
   };
 
