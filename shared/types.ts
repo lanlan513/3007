@@ -327,3 +327,64 @@ export interface UserJourneyState {
   discoveredFans: string[];
   achievements: string[];
 }
+
+export type LifecycleStage =
+  | 'creation'
+  | 'first_owner'
+  | 'famous_encounter'
+  | 'historical_event'
+  | 'scholarly_affair'
+  | 'inheritance'
+  | 'loss_rediscovery'
+  | 'modern_collection'
+  | 'cultural_heritage';
+
+export interface LifecycleEvent {
+  id: string;
+  stage: LifecycleStage;
+  stageName: string;
+  period: string;
+  year: string;
+  yearNumeric: number;
+  title: string;
+  description: string;
+  location: string;
+  protagonist?: string;
+  protagonistId?: string;
+  relatedFigureName?: string;
+  emotionalTone: 'joyful' | 'melancholic' | 'heroic' | 'serene' | 'dramatic' | 'mysterious';
+  historicalSignificance?: string;
+  tags: string[];
+  icon: string;
+  color: string;
+  imagePrompt?: string;
+}
+
+export interface FanLifeStory {
+  fanId: string;
+  fanName: string;
+  fanCategory: FanCategory;
+  fanCategoryName: string;
+  fanImage: string;
+  origin: string;
+  dynasty: string;
+  summary: string;
+  poeticPrologue: string;
+  poeticEpilogue: string;
+  keyThemes: string[];
+  lifecycleEvents: LifecycleEvent[];
+  relatedFigures: {
+    id: string;
+    name: string;
+    role: string;
+    dynasty: string;
+    avatar: string;
+  }[];
+  timelineDuration: string;
+  estimatedAges: {
+    creation: string;
+    modern: string;
+  };
+  preservationGrade: 'ordinary' | 'fine' | 'rare' | 'national_treasure';
+  preservationGradeName: string;
+}

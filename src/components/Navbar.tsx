@@ -52,6 +52,7 @@ export default function Navbar({ onSearchClick }: NavbarProps) {
             <NavLink to="/workshop" label="扇子工坊" />
             <NavLink to="/restoration" label="古扇修复" />
             <NavLink to="/schools" label="流派图鉴" />
+            <NavLink to="/journey" label="扇生传奇" />
             <NavLink to="/windfield" label="风场模拟" />
             <NavLink to="/gallery" label="扇面画廊" />
             <NavLink to="/fan-language" label="扇语系统" />
@@ -94,6 +95,7 @@ export default function Navbar({ onSearchClick }: NavbarProps) {
             <MobileNavLink to="/workshop" label="扇子工坊" />
             <MobileNavLink to="/restoration" label="古扇修复" />
             <MobileNavLink to="/schools" label="流派图鉴" />
+            <MobileNavLink to="/journey" label="扇生传奇" />
             <MobileNavLink to="/windfield" label="风场模拟" />
             <MobileNavLink to="/gallery" label="扇面画廊" />
             <MobileNavLink to="/fan-language" label="扇语系统" />

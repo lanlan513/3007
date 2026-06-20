@@ -1448,3 +1448,83 @@ export const REPAIR_TECHNIQUES: RepairTechnique[] = [
     requiredLevel: 'master',
   },
 ];
+
+export type LifecycleStage =
+  | 'creation'
+  | 'first_owner'
+  | 'famous_encounter'
+  | 'historical_event'
+  | 'scholarly_affair'
+  | 'inheritance'
+  | 'loss_rediscovery'
+  | 'modern_collection'
+  | 'cultural_heritage';
+
+export interface LifecycleEvent {
+  id: string;
+  stage: LifecycleStage;
+  stageName: string;
+  period: string;
+  year: string;
+  yearNumeric: number;
+  title: string;
+  description: string;
+  location: string;
+  protagonist?: string;
+  protagonistId?: string;
+  relatedFigureName?: string;
+  emotionalTone: 'joyful' | 'melancholic' | 'heroic' | 'serene' | 'dramatic' | 'mysterious';
+  historicalSignificance?: string;
+  tags: string[];
+  icon: string;
+  color: string;
+  imagePrompt?: string;
+}
+
+export interface FanLifeStory {
+  fanId: string;
+  fanName: string;
+  fanCategory: FanCategory;
+  fanCategoryName: string;
+  fanImage: string;
+  origin: string;
+  dynasty: string;
+  summary: string;
+  poeticPrologue: string;
+  poeticEpilogue: string;
+  keyThemes: string[];
+  lifecycleEvents: LifecycleEvent[];
+  relatedFigures: {
+    id: string;
+    name: string;
+    role: string;
+    dynasty: string;
+    avatar: string;
+  }[];
+  timelineDuration: string;
+  estimatedAges: {
+    creation: string;
+    modern: string;
+  };
+  preservationGrade: 'ordinary' | 'fine' | 'rare' | 'national_treasure';
+  preservationGradeName: string;
+}
+
+export const LIFECYCLE_STAGE_INFO: Record<LifecycleStage, { name: string; icon: string; color: string }> = {
+  creation: { name: '匠心诞生', icon: '🎨', color: 'vermilion' },
+  first_owner: { name: '初遇明主', icon: '👑', color: 'gold' },
+  famous_encounter: { name: '名士结缘', icon: '🤝', color: 'bamboo' },
+  historical_event: { name: '历史见证', icon: '⚔️', color: 'ink' },
+  scholarly_affair: { name: '文人雅事', icon: '📚', color: 'bamboo' },
+  inheritance: { name: '世代传承', icon: '🏮', color: 'vermilion' },
+  loss_rediscovery: { name: '离合重光', icon: '🔮', color: 'gold' },
+  modern_collection: { name: '入藏重阁', icon: '🏛️', color: 'ink' },
+  cultural_heritage: { name: '文化永存', icon: '✨', color: 'gold' },
+};
+
+export const PRESERVATION_GRADES: Record<string, { name: string; color: string }> = {
+  ordinary: { name: '寻常文物', color: 'text-ink-500' },
+  fine: { name: '精品遗存', color: 'text-bamboo-600' },
+  rare: { name: '稀世珍宝', color: 'text-gold-600' },
+  national_treasure: { name: '国之重宝', color: 'text-vermilion-600' },
+};
