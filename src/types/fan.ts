@@ -850,6 +850,28 @@ export function generateFragmentsForSchool(schoolId: SchoolId): SchoolFragment[]
     icon: '📜',
   });
 
+  fragments.push({
+    id: `${schoolId}_quiz_master`,
+    schoolId,
+    type: 'quiz',
+    title: `${school.name}知识达人`,
+    description: `答对题目获得的荣誉徽章`,
+    content: `你对${school.name}的文化知识了如指掌，堪称${school.name}文化达人！这份荣誉是你智慧与学识的见证。`,
+    rarity: 'rare',
+    icon: '🏆',
+  });
+
+  fragments.push({
+    id: `${schoolId}_crafting_master`,
+    schoolId,
+    type: 'crafting',
+    title: `${school.name}制扇名师`,
+    description: `制作${school.name}珍品扇子的成就`,
+    content: `你已掌握${school.name}制扇技艺的精髓，能够制作出品质上乘的${school.name}珍品。这是你不懈努力和匠心精神的最好证明。`,
+    rarity: 'epic',
+    icon: '⭐',
+  });
+
   return fragments;
 }
 

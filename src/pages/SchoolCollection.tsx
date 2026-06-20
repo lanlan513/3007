@@ -102,6 +102,7 @@ export default function SchoolCollection() {
           <CollectionSection
             selectedSchool={selectedSchool}
             onSelectSchool={setSelectedSchool}
+            onSwitchTab={setActiveTab}
           />
         )}
 
@@ -217,9 +218,11 @@ function TabButton({
 function CollectionSection({
   selectedSchool,
   onSelectSchool,
+  onSwitchTab,
 }: {
   selectedSchool: SchoolId | null;
   onSelectSchool: (id: SchoolId | null) => void;
+  onSwitchTab: (tab: 'collection' | 'explore' | 'trade') => void;
 }) {
   const { getSchoolProgress, completedSchools } = useSchoolStore();
 
@@ -228,6 +231,7 @@ function CollectionSection({
       <SchoolDetail
         schoolId={selectedSchool}
         onBack={() => onSelectSchool(null)}
+        onSwitchTab={onSwitchTab}
       />
     );
   }
@@ -334,9 +338,11 @@ function SchoolCard({
 function SchoolDetail({
   schoolId,
   onBack,
+  onSwitchTab,
 }: {
   schoolId: SchoolId;
   onBack: () => void;
+  onSwitchTab: (tab: 'collection' | 'explore' | 'trade') => void;
 }) {
   const {
     getFragmentsBySchool,
@@ -362,9 +368,8 @@ function SchoolDetail({
   const difficultyInfo = DIFFICULTY_INFO[school.difficulty];
 
   const handleExplore = () => {
-    if (!isExploring) {
-      startExploration(schoolId);
-    }
+    startExploration(schoolId);
+    onSwitchTab('explore');
   };
 
   const handleQuiz = () => {
@@ -372,7 +377,14 @@ function SchoolDetail({
   };
 
   const handleCrafting = () => {
-    grantCraftingReward(schoolId);
+    const { getRandomUncollectedFragment, collectFragment, setShowRewardModal } = useSchoolStore.getState();
+    const fragment = getRandomUncollectedFragment(schoolId, 'crafting');
+    if (fragment) {
+      collectFragment(fragment.id, 'crafting');
+      setActiveFragment(fragment);
+      setShowFragmentModal(true);
+      setShowRewardModal(false);
+    }
   };
 
   return (
@@ -719,18 +731,36 @@ function ExploreSection() {
         </div>
 
         <h3 className="font-serif-sc text-2xl font-bold text-ink-800 mb-2">正在探索{school.name}</h3>
-        <p className="text-ink-500 mb-6">{school.origin} · {school.style.name}</p>
+        <p className="text-ink-500 mb-4">{school.origin} · {school.style.name}</p>
+
+        <div className="bg-gradient-to-r from-bamboo-50 to-gold-50 rounded-xl p-4 mb-6 border border-bamboo-200">
+          <div className="flex items-start gap-3 text-left">
+            <div className="text-2xl">💡</div>
+            <div className="flex-1">
+              <p className="font-serif-sc font-bold text-ink-800 mb-1">探索指南</p>
+              <p className="text-sm text-ink-600">点击下方「继续探索」按钮推进进度，进度满100%后有机会获得该流派的图鉴碎片！</p>
+            </div>
+          </div>
+        </div>
 
         <div className="mb-6">
           <div className="flex items-center justify-between text-sm mb-2">
             <span className="text-ink-500">探索进度</span>
-            <span className="font-bold text-vermilion-600">{exploreProgress}%</span>
+            <span className="font-bold text-vermilion-600 text-lg">{exploreProgress}%</span>
           </div>
-          <div className="h-3 bg-paper-100 rounded-full overflow-hidden">
+          <div className="h-4 bg-paper-100 rounded-full overflow-hidden shadow-inner">
             <div
-              className="h-full bg-gradient-to-r from-vermilion-400 to-gold-400 rounded-full transition-all duration-500"
+              className="h-full bg-gradient-to-r from-vermilion-400 via-vermilion-500 to-gold-400 rounded-full transition-all duration-500 relative"
               style={{ width: `${exploreProgress}%` }}
-            />
+            >
+              <div className="absolute inset-0 bg-white/30 animate-pulse" />
+            </div>
+          </div>
+          <div className="flex justify-between text-xs text-ink-400 mt-1">
+            <span>起步</span>
+            <span>深入</span>
+            <span>发现</span>
+            <span>收获</span>
           </div>
         </div>
 
@@ -744,12 +774,20 @@ function ExploreSection() {
           <button
             onClick={handleProgress}
             disabled={exploring}
-            className="flex items-center gap-2 px-6 py-2.5 bg-gradient-to-r from-vermilion-500 to-gold-500 text-white font-serif-sc rounded-xl hover:shadow-lg hover:shadow-vermilion-500/30 transition-all disabled:opacity-50"
+            className={`flex items-center gap-2 px-8 py-3 font-serif-sc font-bold rounded-xl hover:shadow-lg hover:shadow-vermilion-500/30 transition-all ${
+              exploring
+                ? 'bg-gradient-to-r from-ink-400 to-ink-500 text-white cursor-not-allowed'
+                : 'bg-gradient-to-r from-vermilion-500 to-gold-500 text-white hover:shadow-lg hover:shadow-vermilion-500/30'
+            }`}
           >
-            <Compass size={16} className={exploring ? 'animate-spin' : ''} />
-            继续探索
+            <Compass size={18} className={exploring ? 'animate-spin' : ''} />
+            {exploring ? '探索中...' : '继续探索'}
           </button>
         </div>
+
+        <p className="text-xs text-ink-400 mt-4">
+          提示：每次探索大约需要点击 3-5 次「继续探索」即可完成
+        </p>
       </div>
     </div>
   );
@@ -1059,11 +1097,12 @@ function FragmentModal({
 }
 
 function QuizModal() {
-  const { selectedSchoolForQuiz, getQuizQuestions, answerQuiz, closeQuiz, quizHistory } = useSchoolStore();
+  const { selectedSchoolForQuiz, getQuizQuestions, answerQuiz, closeQuiz, setActiveFragment, setShowFragmentModal } = useSchoolStore();
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [selectedOption, setSelectedOption] = useState<number | null>(null);
   const [showResult, setShowResult] = useState(false);
   const [isCorrect, setIsCorrect] = useState(false);
+  const [earnedFragment, setEarnedFragment] = useState<SchoolFragment | null>(null);
 
   if (!selectedSchoolForQuiz) return null;
 
@@ -1084,13 +1123,20 @@ function QuizModal() {
     setIsCorrect(correct);
     setShowResult(true);
     if (correct) {
-      answerQuiz(question.id, true);
+      const result = answerQuiz(question.id, true);
+      setEarnedFragment(result);
     } else {
       answerQuiz(question.id, false);
+      setEarnedFragment(null);
     }
   };
 
   const handleNext = () => {
+    if (earnedFragment) {
+      setActiveFragment(earnedFragment);
+      setShowFragmentModal(true);
+      setEarnedFragment(null);
+    }
     if (currentQuestionIndex < questions.length - 1) {
       setCurrentQuestionIndex(currentQuestionIndex + 1);
       setSelectedOption(null);
@@ -1173,7 +1219,24 @@ function QuizModal() {
                   {isCorrect ? '回答正确！' : '回答错误'}
                 </span>
               </div>
-              <p className="text-sm text-ink-600">{question.explanation}</p>
+              <p className="text-sm text-ink-600 mb-2">{question.explanation}</p>
+              {isCorrect && earnedFragment && (
+                <div className="mt-3 pt-3 border-t border-bamboo-200 flex items-center gap-3">
+                  <div className="text-3xl">{earnedFragment.icon}</div>
+                  <div className="flex-1">
+                    <p className="font-bold text-ink-800 text-sm">🎁 获得碎片奖励</p>
+                    <p className="text-xs text-ink-600">{earnedFragment.title}</p>
+                  </div>
+                  <span className={`px-2 py-1 rounded text-xs font-medium ${
+                    earnedFragment.rarity === 'legendary' ? 'bg-vermilion-100 text-vermilion-600' :
+                    earnedFragment.rarity === 'epic' ? 'bg-gold-100 text-gold-600' :
+                    earnedFragment.rarity === 'rare' ? 'bg-bamboo-100 text-bamboo-600' :
+                    'bg-ink-100 text-ink-600'
+                  }`}>
+                    {FRAGMENT_RARITY_INFO[earnedFragment.rarity].label}
+                  </span>
+                </div>
+              )}
             </div>
           )}
 
