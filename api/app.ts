@@ -15,6 +15,7 @@ import authRoutes from './routes/auth.js'
 import fanRoutes from './routes/fanRoutes.js'
 import galleryRoutes from './routes/galleryRoutes.js'
 import figureRoutes from './routes/figureRoutes.js'
+import techTreeRoutes from './routes/techTreeRoutes.js'
 
 // for esm mode
 const __filename = fileURLToPath(import.meta.url)
@@ -36,6 +37,7 @@ app.use('/api/auth', authRoutes)
 app.use('/api/fans', fanRoutes)
 app.use('/api/gallery', galleryRoutes)
 app.use('/api/figures', figureRoutes)
+app.use('/api/tech-tree', techTreeRoutes)
 
 /**
  * health

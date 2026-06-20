@@ -388,3 +388,142 @@ export interface FanLifeStory {
   preservationGrade: 'ordinary' | 'fine' | 'rare' | 'national_treasure';
   preservationGradeName: string;
 }
+
+export type TechTreeNodeStatus = 'locked' | 'unlocked' | 'completed';
+
+export type TechTreeNodeCategory =
+  | 'obstruction'
+  | 'feather'
+  | 'round'
+  | 'folding'
+  | 'craft'
+  | 'modern';
+
+export interface TechTreeNodeCategoryInfo {
+  value: TechTreeNodeCategory;
+  label: string;
+  description: string;
+  color: string;
+  icon: string;
+}
+
+export interface TechTreeNode {
+  id: string;
+  name: string;
+  category: TechTreeNodeCategory;
+  categoryName: string;
+  era: string;
+  year: string;
+  yearNumeric: number;
+  description: string;
+  historicalBackground: string;
+  craftsmanship: string;
+  culturalSignificance: string;
+  unlockCondition: string;
+  prerequisiteIds: string[];
+  position: {
+    x: number;
+    y: number;
+    layer: number;
+  };
+  imagePrompt: string;
+  relatedFanIds?: string[];
+  relatedFigureIds?: string[];
+  achievements: string[];
+  difficulty: 1 | 2 | 3 | 4 | 5;
+  rewardPoints: number;
+}
+
+export interface TechTreeBranch {
+  id: string;
+  name: string;
+  description: string;
+  category: TechTreeNodeCategory;
+  categoryName?: string;
+  startNodeId?: string;
+  endNodeId?: string;
+  nodeIds: string[];
+  color?: string;
+  position?: { x: number; y: number };
+}
+
+export interface TechTreeAchievement {
+  id: string;
+  name: string;
+  description: string;
+  condition: string;
+  icon: string;
+  category: 'exploration' | 'completion' | 'lore' | 'milestone' | 'branch';
+  points: number;
+  unlocked?: boolean;
+  unlockedAt?: number;
+  relatedNodeIds?: string[];
+  requirement?: string;
+}
+
+export interface UserTechTreeProgress {
+  unlockedNodeIds: string[];
+  completedNodeIds: string[];
+  currentNodeId?: string;
+  totalPoints: number;
+  achievements: TechTreeAchievement[];
+  explorationNotes: Record<string, string>;
+  lastVisitedAt?: number;
+}
+
+export interface TechTree {
+  id: string;
+  name: string;
+  description: string;
+  categories: TechTreeNodeCategoryInfo[];
+  nodes: TechTreeNode[];
+  branches: TechTreeBranch[];
+  startingNodeId: string;
+  achievements?: TechTreeAchievement[];
+}
+
+export type CognitionMapStyle = 'tree' | 'timeline' | 'network' | 'radial';
+
+export interface CognitionMapNode {
+  nodeId: string;
+  exploredAt: number;
+  notes?: string;
+  connections: string[];
+  depth: number;
+}
+
+export interface UserCognitionMap {
+  userId: string;
+  createdAt: number;
+  updatedAt: number;
+  nodes: CognitionMapNode[];
+  style: CognitionMapStyle;
+  title?: string;
+  description?: string;
+  insights: string[];
+  exploredPercentage: number;
+}
+
+export interface TechTreeResponse {
+  techTree: TechTree;
+  userProgress: UserTechTreeProgress;
+}
+
+export interface NodeDetailResponse {
+  node: TechTreeNode;
+  relatedFans: Fan[];
+  relatedFigures: HistoricalFigure[];
+  userProgress: UserTechTreeProgress;
+}
+
+export interface UnlockNodePayload {
+  nodeId: string;
+  notes?: string;
+}
+
+export interface UpdateCognitionMapPayload {
+  style?: CognitionMapStyle;
+  title?: string;
+  description?: string;
+  nodeNotes?: Record<string, string>;
+}

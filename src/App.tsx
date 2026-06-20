@@ -15,6 +15,8 @@ import FanAnatomy from '@/pages/FanAnatomy';
 import SolarTermCalendar from '@/pages/SolarTermCalendar';
 import Yearbook from '@/pages/Yearbook';
 import FanJourney from '@/pages/FanJourney';
+import TechTree from '@/pages/TechTree';
+import CognitionMap from '@/pages/CognitionMap';
 import Navbar from '@/components/Navbar';
 import { useState, useEffect } from 'react';
 import SearchBar from '@/components/SearchBar';
@@ -85,6 +87,8 @@ export default function App() {
           <Route path="/solar-terms" element={<SolarTermCalendar />} />
           <Route path="/yearbook" element={<Yearbook />} />
           <Route path="/journey" element={<FanJourney />} />
+          <Route path="/tech-tree" element={<TechTree />} />
+          <Route path="/cognition-map" element={<CognitionMap />} />
         </Routes>
       </div>
     </Router>
