@@ -8,12 +8,50 @@ import SchoolCollection from '@/pages/SchoolCollection';
 import WindField from '@/pages/WindField';
 import Figures from '@/pages/Figures';
 import FigureDetail from '@/pages/FigureDetail';
+import FanCultureScroll from '@/pages/FanCultureScroll';
 import Navbar from '@/components/Navbar';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import SearchBar from '@/components/SearchBar';
 
 export default function App() {
   const [searchOpen, setSearchOpen] = useState(false);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            const el = entry.target as HTMLElement;
+            el.classList.add('animate-scroll-visible');
+            el.classList.remove('opacity-0', 'translate-y-8');
+            el.style.transitionDelay = `${(Math.random() * 0.2).toFixed(2)}s`;
+          }
+        });
+      },
+      { threshold: 0.1, rootMargin: '0px 0px -60px 0px' }
+    );
+
+    const observeElements = () => {
+      document.querySelectorAll('.animate-on-scroll').forEach((el) => {
+        observer.observe(el);
+      });
+    };
+
+    observeElements();
+
+    const timeout = setTimeout(observeElements, 500);
+    const timeout2 = setTimeout(observeElements, 1500);
+
+    const mutationObserver = new MutationObserver(observeElements);
+    mutationObserver.observe(document.body, { childList: true, subtree: true });
+
+    return () => {
+      observer.disconnect();
+      mutationObserver.disconnect();
+      clearTimeout(timeout);
+      clearTimeout(timeout2);
+    };
+  }, []);
 
   return (
     <Router>
@@ -34,6 +72,7 @@ export default function App() {
           <Route path="/windfield" element={<WindField />} />
           <Route path="/figures" element={<Figures />} />
           <Route path="/figure/:id" element={<FigureDetail />} />
+          <Route path="/scroll" element={<FanCultureScroll />} />
         </Routes>
       </div>
     </Router>

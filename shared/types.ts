@@ -246,3 +246,84 @@ export interface CreateFigurePayload {
 export interface UpdateFigurePayload extends Partial<CreateFigurePayload> {
   id: string;
 }
+
+export type DynastyId = 'pre-qin' | 'han' | 'tang' | 'song' | 'ming' | 'qing' | 'minguo';
+
+export interface ScrollSection {
+  id: string;
+  dynasty: DynastyId;
+  dynastyName: string;
+  era: string;
+  title: string;
+  subtitle: string;
+  description: string;
+  visualStyle: {
+    primaryColor: string;
+    secondaryColor: string;
+    bgPattern: string;
+    decorativeElement: string;
+  };
+  fanDevelopments: FanDevelopment[];
+  stories: ScrollStory[];
+  historicalFigures: string[];
+  artworks: ScrollArtwork[];
+  scrollPosition: number;
+  imagePrompt: string;
+}
+
+export interface FanDevelopment {
+  id: string;
+  name: string;
+  type: FanCategory;
+  typeName: string;
+  description: string;
+  significance: string;
+  imagePrompt: string;
+  year: string;
+}
+
+export interface ScrollStory {
+  id: string;
+  title: string;
+  summary: string;
+  fullContent: string;
+  category: 'legend' | 'history' | 'art' | 'custom' | 'literature';
+  categoryName: string;
+  triggerPosition: number;
+  relatedFanId?: string;
+  relatedFigureId?: string;
+  imagePrompt?: string;
+}
+
+export interface ScrollArtwork {
+  id: string;
+  title: string;
+  artist: string;
+  description: string;
+  imagePrompt: string;
+  year: string;
+}
+
+export interface JourneyRecord {
+  id: string;
+  sectionId: string;
+  dynasty: DynastyId;
+  dynastyName: string;
+  title: string;
+  visitedAt: number;
+  scrollPosition: number;
+  storiesUnlocked: string[];
+  figuresUnlocked: string[];
+  fansDiscovered: string[];
+  notes?: string;
+}
+
+export interface UserJourneyState {
+  records: JourneyRecord[];
+  totalDistance: number;
+  currentSectionId?: string;
+  unlockedFigures: string[];
+  unlockedStories: string[];
+  discoveredFans: string[];
+  achievements: string[];
+}
