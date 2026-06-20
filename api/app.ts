@@ -14,6 +14,7 @@ import { fileURLToPath } from 'url'
 import authRoutes from './routes/auth.js'
 import fanRoutes from './routes/fanRoutes.js'
 import galleryRoutes from './routes/galleryRoutes.js'
+import figureRoutes from './routes/figureRoutes.js'
 
 // for esm mode
 const __filename = fileURLToPath(import.meta.url)
@@ -34,6 +35,7 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }))
 app.use('/api/auth', authRoutes)
 app.use('/api/fans', fanRoutes)
 app.use('/api/gallery', galleryRoutes)
+app.use('/api/figures', figureRoutes)
 
 /**
  * health
