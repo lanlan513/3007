@@ -11,6 +11,7 @@ import FigureDetail from '@/pages/FigureDetail';
 import FanCultureScroll from '@/pages/FanCultureScroll';
 import FanRegistry from '@/pages/FanRegistry';
 import FanLanguage from '@/pages/FanLanguage';
+import FanAnatomy from '@/pages/FanAnatomy';
 import Navbar from '@/components/Navbar';
 import { useState, useEffect } from 'react';
 import SearchBar from '@/components/SearchBar';
@@ -77,6 +78,7 @@ export default function App() {
           <Route path="/scroll" element={<FanCultureScroll />} />
           <Route path="/registry" element={<FanRegistry />} />
           <Route path="/fan-language" element={<FanLanguage />} />
+          <Route path="/anatomy" element={<FanAnatomy />} />
         </Routes>
       </div>
     </Router>
