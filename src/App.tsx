@@ -5,6 +5,7 @@ import Gallery from '@/pages/Gallery';
 import Workshop from '@/pages/Workshop';
 import Restoration from '@/pages/Restoration';
 import SchoolCollection from '@/pages/SchoolCollection';
+import WindField from '@/pages/WindField';
 import Navbar from '@/components/Navbar';
 import { useState } from 'react';
 import SearchBar from '@/components/SearchBar';
@@ -28,6 +29,7 @@ export default function App() {
           <Route path="/workshop" element={<Workshop />} />
           <Route path="/restoration" element={<Restoration />} />
           <Route path="/schools" element={<SchoolCollection />} />
+          <Route path="/windfield" element={<WindField />} />
         </Routes>
       </div>
     </Router>
