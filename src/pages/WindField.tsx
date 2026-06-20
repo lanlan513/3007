@@ -52,10 +52,37 @@ interface WindHistoryPoint {
   comfort: number;
 }
 
-const FAN_PRESETS: Record<FanType, { name: string; icon: string; defaultRibs: number; minRibs: number; maxRibs: number; desc: string; color: string }> = {
-  round: { name: '团扇', icon: '🪭', defaultRibs: 0, minRibs: 0, maxRibs: 0, desc: '圆形扇面，风力均匀柔和，覆盖范围宽', color: 'vermilion' },
-  folding: { name: '折扇', icon: '🪭', defaultRibs: 18, minRibs: 9, maxRibs: 40, desc: '折扇开合，风力集中强劲，扇骨导流', color: 'gold' },
-  feather: { name: '羽扇', icon: '🪶', defaultRibs: 0, minRibs: 0, maxRibs: 0, desc: '羽毛轻盈，风力温润细腻，舒适度最高', color: 'bamboo' },
+const FAN_PRESETS: Record<FanType, { name: string; icon: string; defaultRibs: number; minRibs: number; maxRibs: number; defaultOpenAngle: number; desc: string; color: string }> = {
+  round: { name: '团扇', icon: '🪭', defaultRibs: 0, minRibs: 0, maxRibs: 0, defaultOpenAngle: 160, desc: '圆形扇面，风力均匀柔和，覆盖范围宽', color: 'vermilion' },
+  folding: { name: '折扇', icon: '🪭', defaultRibs: 18, minRibs: 9, maxRibs: 40, defaultOpenAngle: 120, desc: '折扇开合，风力集中强劲，扇骨导流', color: 'gold' },
+  feather: { name: '羽扇', icon: '🪶', defaultRibs: 0, minRibs: 0, maxRibs: 0, defaultOpenAngle: 100, desc: '羽毛轻盈，风力温润细腻，舒适度最高', color: 'bamboo' },
+};
+
+const DEFAULT_SURFACE_SIZE = 50;
+const DEFAULT_SWING_SPEED = 1.0;
+
+const DEFAULT_CONFIGS: Record<FanType, FanConfig> = {
+  round: {
+    type: 'round',
+    ribCount: FAN_PRESETS.round.defaultRibs,
+    surfaceSize: DEFAULT_SURFACE_SIZE,
+    openAngle: FAN_PRESETS.round.defaultOpenAngle,
+    swingSpeed: DEFAULT_SWING_SPEED,
+  },
+  folding: {
+    type: 'folding',
+    ribCount: FAN_PRESETS.folding.defaultRibs,
+    surfaceSize: DEFAULT_SURFACE_SIZE,
+    openAngle: FAN_PRESETS.folding.defaultOpenAngle,
+    swingSpeed: DEFAULT_SWING_SPEED,
+  },
+  feather: {
+    type: 'feather',
+    ribCount: FAN_PRESETS.feather.defaultRibs,
+    surfaceSize: DEFAULT_SURFACE_SIZE,
+    openAngle: FAN_PRESETS.feather.defaultOpenAngle,
+    swingSpeed: DEFAULT_SWING_SPEED,
+  },
 };
 
 function calculateMetrics(config: FanConfig): WindMetrics {
@@ -762,17 +789,12 @@ export default function WindField() {
   const windHistoryRef = useRef<WindHistoryPoint[]>([]);
   const lastHistoryTimeRef = useRef(0);
   const [isPlaying, setIsPlaying] = useState(true);
+  const [currentType, setCurrentType] = useState<FanType>('folding');
+  const [configsByType, setConfigsByType] = useState<Record<FanType, FanConfig>>(DEFAULT_CONFIGS);
 
-  const [config, setConfig] = useState<FanConfig>({
-    type: 'folding',
-    ribCount: 18,
-    surfaceSize: 50,
-    openAngle: 120,
-    swingSpeed: 1.0,
-  });
-
+  const config = configsByType[currentType];
   const metrics = calculateMetrics(config);
-  const preset = FAN_PRESETS[config.type];
+  const preset = FAN_PRESETS[currentType];
 
   const resetParticles = useCallback(() => {
     particlesRef.current = [];
@@ -784,7 +806,7 @@ export default function WindField() {
 
   useEffect(() => {
     resetParticles();
-  }, [config.type, resetParticles]);
+  }, [currentType, resetParticles]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -1116,23 +1138,20 @@ export default function WindField() {
     };
   }, [config, metrics, isPlaying]);
 
-  const handleTypeChange = (type: FanType) => {
-    const preset = FAN_PRESETS[type];
-    setConfig(prev => ({
+  const updateConfig = useCallback((updates: Partial<FanConfig>) => {
+    setConfigsByType(prev => ({
       ...prev,
-      type,
-      ribCount: preset.defaultRibs || prev.ribCount,
+      [currentType]: { ...prev[currentType], ...updates },
     }));
+  }, [currentType]);
+
+  const handleTypeChange = (type: FanType) => {
+    setCurrentType(type);
   };
 
   const handleReset = () => {
-    setConfig({
-      type: 'folding',
-      ribCount: 18,
-      surfaceSize: 50,
-      openAngle: 120,
-      swingSpeed: 1.0,
-    });
+    setConfigsByType({ ...DEFAULT_CONFIGS });
+    setCurrentType('folding');
     resetParticles();
   };
 
@@ -1341,7 +1360,7 @@ export default function WindField() {
                     min={preset.minRibs}
                     max={preset.maxRibs}
                     step={1}
-                    onChange={v => setConfig(prev => ({ ...prev, ribCount: v }))}
+                    onChange={v => updateConfig({ ribCount: v })}
                     formatValue={v => `${v} 根`}
                   />
                 )}
@@ -1352,19 +1371,21 @@ export default function WindField() {
                   min={20}
                   max={100}
                   step={1}
-                  onChange={v => setConfig(prev => ({ ...prev, surfaceSize: v }))}
+                  onChange={v => updateConfig({ surfaceSize: v })}
                   formatValue={v => `${v} cm`}
                 />
 
-                <SliderControl
-                  label="开合角度"
-                  value={config.openAngle}
-                  min={30}
-                  max={180}
-                  step={1}
-                  onChange={v => setConfig(prev => ({ ...prev, openAngle: v }))}
-                  formatValue={v => `${v}°`}
-                />
+                {config.type === 'folding' && (
+                  <SliderControl
+                    label="开合角度"
+                    value={config.openAngle}
+                    min={30}
+                    max={180}
+                    step={1}
+                    onChange={v => updateConfig({ openAngle: v })}
+                    formatValue={v => `${v}°`}
+                  />
+                )}
 
                 <SliderControl
                   label="摇摆速度"
@@ -1372,7 +1393,7 @@ export default function WindField() {
                   min={0.2}
                   max={3.0}
                   step={0.1}
-                  onChange={v => setConfig(prev => ({ ...prev, swingSpeed: v }))}
+                  onChange={v => updateConfig({ swingSpeed: v })}
                   formatValue={v => `${v.toFixed(1)}x`}
                 />
               </div>
